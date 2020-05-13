@@ -1,6 +1,6 @@
-#' Get Haul Data
+#' Get the Haul Data
 #'
-#' Get haul data such as position, depth, sampling method, etc.
+#' Get all the haul data such as position, depth, sampling method, etc.
 #'
 #' @param survey the survey acronym, e.g. NS-IBTS.
 #' @param year the year of the survey, e.g. 2010.
