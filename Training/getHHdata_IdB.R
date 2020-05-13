@@ -6,7 +6,7 @@
 #' @param year the year of the survey, e.g. 2010.
 #' @param quarter the quarter of the year the survey took place, i.e. 1, 2, 3 or 4.
 #'
-#' @return A data frame.
+#' @return A data fram.
 #'
 #' @seealso
 #' \code{\link{getDATRAS}} supports querying many years and quarters in one function call.
