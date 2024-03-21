@@ -7,6 +7,8 @@ library("tidyverse")
 library("lubridate")
 library("here")
 library("glue")
+library("geosphere")
+library("pbapply")
 
 ###-----------------------------------------------------------------------------
 ### do not use S2 if maps package is used
