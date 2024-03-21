@@ -31,7 +31,29 @@ if (file.exists(paste0("data/tidy/", species_name,
     filter(HaulVal == "V") %>%
     distinct() %>%
     mutate(hh_id_row = row_number(),
-           hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Ship}-{StNo}-{HaulNo}"))
+           hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Gear}-{Ship}-{StNo}-{HaulNo}"),
+           beamwidth = case_when(Gear == "BT8" ~ 8,
+                                 Gear == "BT7" ~ 7,
+                                 Gear == "BT6" ~ 6,
+                                 Gear == "BT4A" ~ 4,
+                                 Gear == "BT4AI" ~ 4,
+                                 Gear == "BT4S" ~ 4,
+                                 Gear == "BT3" ~ 3,
+                                 Gear == "BT4P" ~ 4,
+                                 TRUE ~ NA_real_))
+  ### Compute distance form Lat/Lon
+  #Measuring Distance
+  get_dist <- function(x, df){
+    round(distm(x = c(df$ShootLong[x],df$ShootLat[x]),
+                y = c(df$HaulLong[x], df$HaulLat[x])),
+          0)
+  }
+
+  df_hh$TowDistance <- pbsapply(1:nrow(df_hh), get_dist,
+                                df = df_hh)
+  df_hh <- df_hh %>%
+    mutate(swept_area_km2 = ((beamwidth/1000)*(1.852*GroundSpeed*HaulDur/60)),
+           swept_area_km2_dist = ((beamwidth)*(TowDistance))/1000000)
 
   ###---------------------------------------------------------------------------
   ### Load haul data
@@ -49,9 +71,12 @@ if (file.exists(paste0("data/tidy/", species_name,
            LngtClass = as.numeric(as.character(LngtClass)),
            LngtClass = case_when(LngtCode == "." ~ LngtClass / 10,
                                  LngtCode == "0" ~ floor(LngtClass / 10),
+                                 LngtCode == "2" ~ LngtClass,
+                                 LngtCode == "5" ~ LngtClass,
                                  LngtCode == "1" ~ LngtClass),
            LngtClass = round(LngtClass, digits = 0),
-           hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Ship}-{StNo}-{HaulNo}"))  %>%
+           n_fish = sum(HLNoAtLngt*SubFactor),
+           hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Gear}-{Ship}-{StNo}-{HaulNo}"))  %>%
     filter(!is.na(LngtClass))
 
   ###---------------------------------------------------------------------------
@@ -70,10 +95,12 @@ if (file.exists(paste0("data/tidy/", species_name,
            LngtClass = as.numeric(as.character(LngtClass)),
            LngtClass = case_when(LngtCode == "." ~ LngtClass / 10,
                                  LngtCode == "0" ~ floor(LngtClass / 10),
+                                 LngtCode == "5" ~ LngtClass,
+                                 LngtCode == "2" ~ LngtClass,
                                  LngtCode == "1" ~ LngtClass),
            LngtClass = round(LngtClass, digits = 0),
            id_row = row_number(),
-           hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Ship}-{StNo}-{HaulNo}")) %>%
+           hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Gear}-{Ship}-{StNo}-{HaulNo}")) %>%
     filter(!is.na(LngtClass))
 
   ###---------------------------------------------------------------------------
