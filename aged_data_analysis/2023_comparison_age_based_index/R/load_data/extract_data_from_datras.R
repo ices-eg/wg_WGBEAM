@@ -1,7 +1,14 @@
 ###-----------------------------------------------------------------------------
 ### create path for saving data
-dir.create(paste0("data/tidy/", species_name, "/"), showWarnings = FALSE)
-dir.create(paste0("data/figures/", species_name, "/"), showWarnings = FALSE)
+dir.create(paste0("data/tidy/",
+                  survey_code,
+                  "/",
+                  species_name, "/"),
+           showWarnings = FALSE,
+           recursive = TRUE)
+dir.create(paste0("data/figures/", survey_code, "/", species_name, "/"),
+           showWarnings = FALSE,
+           recursive = TRUE)
 
 ################################################################################
 ### Extract data from datras website
@@ -51,9 +58,14 @@ if (file.exists(paste0("data/tidy/", species_name,
 
   df_hh$TowDistance <- pbsapply(1:nrow(df_hh), get_dist,
                                 df = df_hh)
-  df_hh <- df_hh %>%
-    mutate(swept_area_km2 = ((beamwidth/1000)*(1.852*GroundSpeed*HaulDur/60)),
-           swept_area_km2_dist = ((beamwidth)*(TowDistance))/1000000)
+  if (survey_code == "BTS-VIII") {
+    df_hh <- df_hh %>%
+      mutate(swept_area_km2_dist = ((beamwidth)*(TowDistance))/1000000)
+  } else {
+    df_hh <- df_hh %>%
+      mutate(swept_area_km2 = ((beamwidth/1000)*(1.852*GroundSpeed*HaulDur/60)),
+             swept_area_km2_dist = ((beamwidth)*(TowDistance))/1000000)
+  }
 
   ###---------------------------------------------------------------------------
   ### Load haul data
@@ -75,7 +87,6 @@ if (file.exists(paste0("data/tidy/", species_name,
                                  LngtCode == "5" ~ LngtClass,
                                  LngtCode == "1" ~ LngtClass),
            LngtClass = round(LngtClass, digits = 0),
-           n_fish = sum(HLNoAtLngt*SubFactor),
            hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Gear}-{Ship}-{StNo}-{HaulNo}"))  %>%
     filter(!is.na(LngtClass))
 
@@ -105,12 +116,12 @@ if (file.exists(paste0("data/tidy/", species_name,
 
   ###---------------------------------------------------------------------------
   ### Merge tables for age data and haul data
-  df_hh_ca <- left_join(df_ca, select(df_hh, -c("RecordType", "Survey",
+  df_hh_ca <- left_join(df_ca, select(df_hh, -any_of(c("RecordType", "Survey",
                                                 "Quarter", "Country",
                                                 "Ship", "Gear",
                                                 "GearEx", "StNo",
                                                 "HaulNo", "Year",
-                                                "DateofCalculation" )),
+                                                "DateofCalculation"))),
                         by = "hh_id" ) %>%
     arrange(HaulNo, StNo) %>%
     mutate_if(is.character, as.factor)
@@ -118,12 +129,12 @@ if (file.exists(paste0("data/tidy/", species_name,
   ###---------------------------------------------------------------------------
   ### Merge tables for length data and haul data
   ### Load haul data
-  df_hh_hl <- left_join(df_hl, select(df_hh, -c("RecordType", "Survey",
+  df_hh_hl <- left_join(df_hl, select(df_hh, -any_of(c("RecordType", "Survey",
                                                 "Quarter", "Country",
                                                 "Ship", "Gear",
                                                 "GearEx", "StNo",
                                                 "HaulNo", "Year",
-                                                "DateofCalculation" )),
+                                                "DateofCalculation"))),
                         by = "hh_id" ) %>%
     arrange(HaulNo, StNo) %>%
     mutate_if(is.character, as.factor)
@@ -137,6 +148,7 @@ if (file.exists(paste0("data/tidy/", species_name,
                       df_hh_hl = df_hh_hl)
 
   save(list_datras, file = paste0("data/tidy/",
+                                  survey_code, "/",
                                   species_name,
                                   "/datatras_",
                                   min(year_vec),
