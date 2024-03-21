@@ -4,8 +4,23 @@
 
 ###-----------------------------------------------------------------------------
 ### histogram plot
-plot_hist_length_str_fyear <- ggplot(data = df_hh_hl, aes(x = LngtClass)) +
-  geom_histogram(stat = "count") +
+
+### point plot
+dfs_hl_year <- df_hh_hl %>%
+  group_by(Year, across(all_of(index_grouping_var))) %>%
+  mutate(n_fish_tot = n()) %>%
+  group_by(Year, LngtClass, across(all_of(index_grouping_var))) %>%
+  summarise(n_fish = n(),
+            n_fish_tot = unique(n_fish_tot)) %>%
+  group_by(Year) %>%
+  mutate(Year = as_factor(Year),
+         percentage_n_fish = n_fish / n_fish_tot * 100)
+
+
+plot_hist_length_str_fyear <- ggplot(data = dfs_hl_year,
+                                     aes(x = LngtClass,
+                                         y = n_fish)) +
+  geom_col() +
   facet_grid( ~ Year)
 print(plot_hist_length_str_fyear)
 
@@ -18,7 +33,9 @@ ggsave(plot = plot_hist_length_str_fyear,
 
 plot_length_str <- ggplot(data = df_hh_hl,
                           aes(x = LngtClass, fill = as.factor(Year))) +
-  geom_histogram(stat = "count") + ylab("Number") + xlab("Length class")
+  geom_histogram(stat = "count") +
+  ylab("Number") +
+  xlab("Length class")
 print(plot_length_str)  +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -32,15 +49,6 @@ ggsave(plot = plot_length_str,
 
 ###-----------------------------------------------------------------------------
 ### point plot
-dfs_hl_year <- df_hh_hl %>%
-  group_by(Year, across(all_of(index_grouping_var))) %>%
-  mutate(n_fish_tot = n()) %>%
-  group_by(Year, LngtClass, across(all_of(index_grouping_var))) %>%
-  summarise(n_fish = n(),
-            n_fish_tot = unique(n_fish_tot)) %>%
-  group_by(Year) %>%
-  mutate(Year = as_factor(Year),
-         percentage_n_fish = n_fish / n_fish_tot * 100)
 
 year_to_plot <- max(year_vec)
 
