@@ -24,8 +24,7 @@ quarter_vec <- c(1, 2, 3, 4)
 ### 127143 : "Pleuronectes platessa"
 ### 127139 : "Limanda limanda"
 species_code <- "127139"
-species_name <- worms::wormsbyid(as.numeric(species_code)) %>%
-  pull(scientificname)
+species_name <- worrms::wm_id2name(as.numeric(species_code))
 
 ###-----------------------------------------------------------------------------
 ### choose the age+ group: 4+ for the WGBEAM or 8+ for the WGBIE
