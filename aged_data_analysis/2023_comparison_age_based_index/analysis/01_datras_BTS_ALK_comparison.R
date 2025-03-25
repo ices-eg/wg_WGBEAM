@@ -1,5 +1,7 @@
 ################################################################################
-### master script to compare BTS aged data per country
+### WGBEAM-DATRAS
+### Compute ALK per species from CA tables for BTS survey
+### Author : JB Lecomte jean.baptiste.lecomte@ifremer.fr
 ################################################################################
 
 ###-----------------------------------------------------------------------------
@@ -15,7 +17,7 @@ source("R/fun/boot.R")
 survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
-year_vec <- (2015:2022)
+year_vec <- (2015:2024)
 
 ###
 quarter_vec <- c(1, 2, 3, 4)
@@ -32,7 +34,7 @@ max_age <- 8
 
 ###-----------------------------------------------------------------------------
 ### Index grouping variable
-index_grouping_var <- "Country"
+index_grouping_var <- c("Year", "Country")
 
 ###-----------------------------------------------------------------------------
 ### Read data from datras database with icesDatras package
@@ -61,13 +63,13 @@ if (species_name == "Limanda limanda") {
 }
 
 ###-----------------------------------------------------------------------------
-###
+### Make plots for age structure
 source("R/plot_data/plot_length_number.R")
 
 ###-----------------------------------------------------------------------------
 ### Compute mean over haul
 df_alk_prop_long <- compute_alk(df_hh_ca,
                                 age_plus_group = max_age,
-                                index_grouping_var = "Country")
+                                index_grouping_var = index_grouping_var)
 
 source("R/plot_data/plot_alk_prop.R")

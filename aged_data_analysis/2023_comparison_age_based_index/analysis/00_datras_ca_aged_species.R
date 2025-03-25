@@ -1,5 +1,7 @@
 ################################################################################
-### Aged species : extract SpecCode of CA table
+### WGBEAM-DATRAS
+### Explore CA tables for BTS survey
+### Author : JB Lecomte jean.baptiste.lecomte@ifremer.fr
 ################################################################################
 
 ###-----------------------------------------------------------------------------
@@ -15,10 +17,11 @@ source("R/fun/boot.R")
 survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
-year_vec <- (2015:2022)
+year_vec <- (2015:2024)
 
-###
+### Choose which quarter to use
 quarter_vec <- c(1, 2, 3, 4)
+
 ###-----------------------------------------------------------------------------
 ### Load CA data
 cat("Load age data in df_ca \n")
@@ -27,12 +30,13 @@ df_datras_ca <- icesDatras::getDATRAS(record = "CA",
                                       years = year_vec,
                                       quarters = quarter_vec)
 
-### Factor and SpecCode as age
+###-----------------------------------------------------------------------------
+### Factor and Valid_Aphia as age
 df_ca <- df_datras_ca %>%
   as_tibble() %>%
   drop_NA_cols_for_loop(.) %>%
   drop_9_cols_for_loop(.)  %>%
-  mutate(SpecCode = as_factor(SpecCode),
+  mutate(Valid_Aphia = as_factor(Valid_Aphia),
          Age = ifelse(is.na(Age), "Missing", Age),
          Age = as_factor(Age),
          id_row = row_number(),
@@ -43,22 +47,28 @@ df_ca <- df_datras_ca %>%
                                LngtCode == "1" ~ LngtClass),
          LngtClass = round(LngtClass, digits = 0))
 
+###-----------------------------------------------------------------------------
 ### Summary ca table
 dfs_ca_species <- df_ca %>%
   filter(Age != "Missing") %>%
   droplevels() %>%
-  group_by(Year, Country, SpecCode) %>%
+  group_by(Year, Country, Valid_Aphia) %>%
   summarise(n_aged_fish = n())
 
+###-----------------------------------------------------------------------------
 ### get scientific names from worms data base with worms package
-df_scientific_names <- worms::wormsbyid(as.numeric(levels(dfs_ca_species$SpecCode))) %>%
-  select(AphiaID, scientificname) %>%
-  mutate(AphiaID = as_factor(AphiaID)) %>%
-  rename(ScientificName = scientificname)
+df_scientific_names <- worrms::wm_id2name_(as.numeric(unique(df_ca$Valid_Aphia))) %>%
+  utils::stack(.) %>%
+  dplyr::rename(
+    AphiaID = .data$ind,
+    ScientificName = .data$values
+  ) %>%
+  dplyr::mutate(AphiaID = emhUtils::as_numeric_factor(.data$AphiaID))
 
 dfs_ca_species <- left_join(dfs_ca_species, df_scientific_names,
-                            by = c("SpecCode" = "AphiaID"))
+                            by = c("Valid_Aphia" = "AphiaID"))
 
+###-----------------------------------------------------------------------------
 ### plot data
 plot_ca_species <- ggplot(data = dfs_ca_species,
                           aes(y = ScientificName ,
@@ -76,7 +86,7 @@ ggsave(plot_ca_species,
 
 ### plot data for the most aged species (at least 300 per country on annual average)
 dfs_ca_species_n300 <- dfs_ca_species %>%
-  group_by(Country, SpecCode) %>%
+  group_by(Country, Valid_Aphia) %>%
   mutate(average_year_n_aged_fish = mean(n_aged_fish)) %>%
   filter(average_year_n_aged_fish >= 300) %>%
   droplevels()
@@ -94,3 +104,7 @@ ggsave(plot_ca_species_n300,
        filename = here("figures",
                        glue("plot_ca_species_n300.{device_figure}")),
        device = device_figure)
+
+list_of_ca_plots <- list(plot_ca_species = plot_ca_species,
+                         plot_ca_species_n300 = plot_ca_species_n300
+                         )
