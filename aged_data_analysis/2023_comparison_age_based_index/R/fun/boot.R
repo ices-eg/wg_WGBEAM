@@ -9,6 +9,7 @@ library("here")
 library("glue")
 library("geosphere")
 library("pbapply")
+library("worrms")
 
 ###-----------------------------------------------------------------------------
 ### do not use S2 if maps package is used
