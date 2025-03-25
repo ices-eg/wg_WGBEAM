@@ -20,12 +20,12 @@ compute_alk <- function(df_datras_hh_ca,
 
   df_alk <- df_alk %>%
     ### only select the useful columns
-    dplyr::select(LngtClass, Age, CANoAtLngt, Year, all_of(index_grouping_var)) %>%
-    dplyr::group_by(LngtClass, Age, across(all_of(index_grouping_var))) %>%
+    dplyr::select(LngtClass, Age, CANoAtLngt, Year, ScientificName, all_of(index_grouping_var)) %>%
+    dplyr::group_by(LngtClass, Age, ScientificName, across(all_of(index_grouping_var))) %>%
     ### sum the number of aged sole per length class
     dplyr::summarise(n_fish = sum(CANoAtLngt)) %>%
     dplyr::arrange(Age, LngtClass) %>%
-    dplyr::group_by(LngtClass, across(all_of(index_grouping_var))) %>%
+    dplyr::group_by(LngtClass, ScientificName, across(all_of(index_grouping_var))) %>%
     dplyr::mutate(total_n_fish = sum(n_fish),
                   Proportion = n_fish / total_n_fish,
                   Age_f = forcats::as_factor(Age),
