@@ -2,23 +2,22 @@
 ### create path for saving data
 dir.create(paste0("data/tidy/",
                   survey_code,
-                  "/",
-                  species_name, "/"),
+                  "/all_species/"),
            showWarnings = FALSE,
            recursive = TRUE)
-dir.create(paste0("data/figures/", survey_code, "/", species_name, "/"),
+dir.create(paste0("data/figures/", survey_code, "/all_species/"),
            showWarnings = FALSE,
            recursive = TRUE)
 
 ################################################################################
 ### Extract data from datras website
 ###############################################################################
-if (file.exists(paste0("data/tidy/", species_name,
+if (file.exists(paste0("data/tidy/all_species/",
                        "/datatras_",
                        min(year_vec), "_", max(year_vec),".rds")) &
     erase_tidy_data == FALSE) {
   cat("Load datras data already saved \n")
-  load(file = paste0("data/tidy/", species_name, "/datatras_",
+  load(file = paste0("data/tidy/all_species/datatras_",
                      min(year_vec), "_", max(year_vec),".rds"))
   unpack_list(list_datras)
 } else {
@@ -77,8 +76,7 @@ if (file.exists(paste0("data/tidy/", species_name,
     as_tibble() %>%
     drop_NA_cols_for_loop(.) %>%
     drop_9_cols_for_loop(.) %>%
-    filter(SpecCode == species_code,
-           HaulNo %in% df_hh$HaulNo) %>%
+    filter(HaulNo %in% df_hh$HaulNo) %>%
     mutate(LngtClass = as_factor(LngtClass),
            LngtClass = as.numeric(as.character(LngtClass)),
            LngtClass = case_when(LngtCode == "." ~ LngtClass / 10,
@@ -113,8 +111,7 @@ if (file.exists(paste0("data/tidy/", species_name,
     as_tibble() %>%
     drop_NA_cols_for_loop(.) %>%
     drop_9_cols_for_loop(.)  %>%
-    filter(SpecCode == species_code,
-           HaulNo %in% df_hh$HaulNo) %>%
+    filter(HaulNo %in% df_hh$HaulNo) %>%
     mutate(LngtClass = as_factor(LngtClass),
            LngtClass = as.numeric(as.character(LngtClass)),
            LngtClass = case_when(LngtCode == "." ~ LngtClass / 10,
@@ -127,6 +124,7 @@ if (file.exists(paste0("data/tidy/", species_name,
            hh_id = glue("{Survey}-{Year}-{Quarter}-{Country}-{Gear}-{Ship}-{StNo}-{HaulNo}")) %>%
     filter(!is.na(LngtClass))
 
+
   ###-----------------------------------------------------------------------------
   ### get scientific names from worms data base with worms package
   df_scientific_names <- worrms::wm_id2name_(as.numeric(unique(df_ca$Valid_Aphia))) %>%
@@ -138,16 +136,16 @@ if (file.exists(paste0("data/tidy/", species_name,
     dplyr::mutate(AphiaID = emhUtils::as_numeric_factor(.data$AphiaID))
 
   df_ca <- left_join(df_ca, df_scientific_names,
-                     by = c("Valid_Aphia" = "AphiaID"))
+                              by = c("Valid_Aphia" = "AphiaID"))
 
   ###---------------------------------------------------------------------------
   ### Merge tables for age data and haul data
   df_hh_ca <- left_join(df_ca, select(df_hh, -any_of(c("RecordType", "Survey",
-                                                "Quarter", "Country",
-                                                "Ship", "Gear",
-                                                "GearEx", "StNo",
-                                                "HaulNo", "Year",
-                                                "DateofCalculation"))),
+                                                       "Quarter", "Country",
+                                                       "Ship", "Gear",
+                                                       "GearEx", "StNo",
+                                                       "HaulNo", "Year",
+                                                       "DateofCalculation"))),
                         by = "hh_id" ) %>%
     arrange(HaulNo, StNo) %>%
     mutate_if(is.character, as.factor)
@@ -156,11 +154,11 @@ if (file.exists(paste0("data/tidy/", species_name,
   ### Merge tables for length data and haul data
   ### Load haul data
   df_hh_hl <- left_join(df_hl, select(df_hh, -any_of(c("RecordType", "Survey",
-                                                "Quarter", "Country",
-                                                "Ship", "Gear",
-                                                "GearEx", "StNo",
-                                                "HaulNo", "Year",
-                                                "DateofCalculation"))),
+                                                       "Quarter", "Country",
+                                                       "Ship", "Gear",
+                                                       "GearEx", "StNo",
+                                                       "HaulNo", "Year",
+                                                       "DateofCalculation"))),
                         by = "hh_id" ) %>%
     arrange(HaulNo, StNo) %>%
     mutate_if(is.character, as.factor)
@@ -174,9 +172,8 @@ if (file.exists(paste0("data/tidy/", species_name,
                       df_hh_hl = df_hh_hl)
 
   save(list_datras, file = paste0("data/tidy/",
-                                  survey_code, "/",
-                                  species_name,
-                                  "/datatras_",
+                                  survey_code,
+                                  "/all_species/datatras_",
                                   min(year_vec),
                                   "_", max(year_vec),".rds"))
 }
