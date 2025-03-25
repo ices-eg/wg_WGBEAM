@@ -1,6 +1,6 @@
 ################################################################################
 ### WGBEAM-DATRAS
-### Compute ALK per species from CA tables for BTS survey
+### Compute ALK per species from CA tables for BTS survey for one species
 ### Author : JB Lecomte jean.baptiste.lecomte@ifremer.fr
 ################################################################################
 
@@ -17,7 +17,7 @@ source("R/fun/boot.R")
 survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
-year_vec <- (2015:2024)
+year_vec <- (2020:2024)
 
 ###
 quarter_vec <- c(1, 2, 3, 4)
@@ -27,6 +27,7 @@ quarter_vec <- c(1, 2, 3, 4)
 ### 127139 : "Limanda limanda"
 species_code <- "127139"
 species_name <- worrms::wm_id2name(as.numeric(species_code))
+path_figures <- glue("{path_figures}/{species_name}")
 
 ###-----------------------------------------------------------------------------
 ### choose the age+ group: 4+ for the WGBEAM or 8+ for the WGBIE
@@ -51,7 +52,6 @@ if (species_name == "Limanda limanda") {
 
   sf_ices_rec_area4 <- sf::st_join(sf_ices_area4,
                                    sf_ices_rec)
-
   df_hh <- df_hh %>%
     filter(StatRec %in% sf_ices_rec_area4$ICESNAME)
 
@@ -68,6 +68,7 @@ source("R/plot_data/plot_length_number.R")
 
 ###-----------------------------------------------------------------------------
 ### Compute mean over haul
+index_grouping_var <- c("Year")
 df_alk_prop_long <- compute_alk(df_hh_ca,
                                 age_plus_group = max_age,
                                 index_grouping_var = index_grouping_var)
