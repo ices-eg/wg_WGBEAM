@@ -19,6 +19,10 @@ library(dplyr)
 library(tidyr)
 library(worrms)
 
+# Set your own directory to save outputs
+user_wd<-"C:/Users/a.palermino/OneDrive - CNR/Assegno Scarcella/WGBEAM_2025"
+if(!dir.exists(path=paste(user_wd,"elasmo_output"))) dir.create(path=paste0(user_wd,"/elasmo_output"))
+
 ##########################################
 ##########################################
 ## Get data from DATRAS
@@ -54,6 +58,16 @@ head(tmpSNS)
 
 table(tmpSNS$Country, tmpSNS$Year)
 
+
+tmp8<-getDATRAS(record = "HH",
+                survey = "BTS-VIII",   #only 1 survey at a time
+                years= 2000:2024,
+                quarters = 1:4) 
+# look what's there
+head(tmp8)
+
+table(tmp8$Country, tmp8$Year) # data from 2011
+
 # select useful columns DYFS
 tmp1<-tmpDYFS %>% select(Year, Quarter, Country, Ship, Survey, Gear, StNo, HaulNo, Month, Day, 
                          DepthStratum, HaulDur,DayNight,ShootLat, ShootLong, HaulLat, HaulLong, StatRec, 
@@ -71,10 +85,16 @@ tmp3<-tmpSNS %>% select(Year, Quarter, Country, Ship, Survey, Gear, StNo, HaulNo
                         Depth, HaulVal, DataType, Rigging, Tickler, Distance, GroundSpeed, 
                         SurTemp, BotTemp, SurSal, BotSal)
 
+# select useful columns BTS-VIII
+tmp4<-tmp8 %>% select(Year, Quarter, Country, Ship, Survey, Gear, StNo, HaulNo, Month, Day, 
+                        DepthStratum, HaulDur,DayNight,ShootLat, ShootLong, HaulLat, HaulLong, StatRec, 
+                        Depth, HaulVal, DataType, Rigging, Tickler, Distance, GroundSpeed, 
+                        SurTemp, BotTemp, SurSal, BotSal)
+
 ###########
-## Joining DYFS and BTS and SNS
+## Joining DYFS and BTS and SNS and BTS-VIII
 ###########
-HHFIN <- rbind(tmp1,tmp2,tmp3)
+HHFIN <- rbind(tmp1,tmp2,tmp3,tmp4)
 # look for NAs
 for (Var in names(HHFIN)) {
   missing <- sum(is.na(HHFIN[,Var]))
@@ -84,15 +104,16 @@ for (Var in names(HHFIN)) {
 } #NA's in StNo; DepthStratum; HaulDur; StatRec; Depth; Rigging; Tickler; Distance
 
 
+
 ######
 ## Get length (HL) data from Datras
 # DYFS
-tstart<-Sys.time() 
+Sys.time() 
 tmpfDYFS1 <-getDATRAS(record = "HL",
                       survey = "DYFS",   #only 1 survey at a time
                       years= 2000:2024,
                       quarters = 1:4)  
-tfinish<-Sys.time() 
+Sys.time() 
 # if the getDATRAS is too slow download the data directly from https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx
 # look what's there
 head(tmpfDYFS1)
@@ -104,24 +125,33 @@ tmpfBTS <-getDATRAS(record = "HL",
                     years= 2000:2024,
                     quarters = 1:4) # time to download 10:42 to 11:47
 
-
-
-
 # look what's there
 head(tmpfBTS)
 table(tmpfBTS$Country, tmpfBTS$Year)
 
 ## SNS
-tstart<-Sys.time() 
+Sys.time() 
 tmpfSNS <-getDATRAS(record = "HL",
                     survey = "SNS",   #only 1 survey at a time
                     years= 2000:2024,
                     quarters = 1:4) # time to download 3 minutes
-tfinish<-Sys.time() 
-# if the getDATRAS is too slow download the data directly from https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx
-# look what's there
 head(tmpfSNS)
 table(tmpfSNS$Country, tmpfSNS$Year)
+
+# 8ab survey
+Sys.time() 
+tmpf8ab <-getDATRAS(record = "HL",
+                    survey = "BTS-VIII",   #only 1 survey at a time
+                    years= 2000:2024,
+                    quarters = 1:4)  
+
+head(tmpf8ab)
+table(tmpf8ab$Country, tmpf8ab$Year) # data from 2011
+
+Sys.time() 
+# if the getDATRAS is too slow download the data directly from https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx
+# look what's there
+
 
 # select useful colums DYFS
 tmpf1<-tmpfDYFS1 %>% select(Year, Quarter, Country, Ship, Survey, Gear, StNo, HaulNo, 
@@ -136,10 +166,14 @@ tmpf3<-tmpfSNS %>% select(Year, Quarter, Country, Ship, Survey, Gear, StNo, Haul
                           SpecCode, SpecVal, Sex, TotalNo, CatIdentifier, NoMeas, 
                           SubFactor, SubWgt, CatCatchWgt, LngtCode, LngtClass, HLNoAtLngt, DevStage, Valid_Aphia)
 
+tmpf4<-tmpf8ab %>% select(Year, Quarter, Country, Ship, Survey, Gear, StNo, HaulNo, 
+                          SpecCode, SpecVal, Sex, TotalNo, CatIdentifier, NoMeas, 
+                          SubFactor, SubWgt, CatCatchWgt, LngtCode, LngtClass, HLNoAtLngt, DevStage, Valid_Aphia)
+
 ###########
-## Joining DYFS and BTS and SNS
+## Joining DYFS and BTS and SNS anmd BTS-VIII
 ###########
-HLFIN <- rbind(tmpf1,tmpf2,tmpf3)
+HLFIN <- rbind(tmpf1,tmpf2,tmpf3,tmpf4)
 # look for NAs
 for (Var in names(HLFIN)) {
   missing <- sum(is.na(HLFIN[,Var]))
@@ -147,7 +181,6 @@ for (Var in names(HLFIN)) {
     print(c(Var,missing))
   }
 } #NA's in StNo; Sex; CatIdentifier; NoMeas; SubWgt; CatCatchWgt; LngtCode; LngtClass; DevStage
-
 
 
 ##########################################
@@ -237,7 +270,7 @@ dat <- dat2
 
 #save dat 
 #setwd("C:/Users/f.masnadi/Desktop/BIOLOGIA della PESCA/CNR/WGBEAM/wg_WGBEAM/elasmobranchs")
-save(dat, file = "./ADHOC/OUTPUT/WGBEAM/elasmo_dat2000_II.rda")
+save(dat, file = paste0(user_wd,"/elasmo_dat2000_II.rda"))
 
 
 
@@ -249,7 +282,7 @@ save(dat, file = "./ADHOC/OUTPUT/WGBEAM/elasmo_dat2000_II.rda")
 
 # Option 1: based on beam width and distance
 # check if there are missing records for Distance
-load("elasmo_dat2000_II.rda")
+load(paste0(user_wd,"/elasmo_dat2000_II.rda")) #use to upload save file to avoid reload data in case you close the session
 test <- dat %>%  filter(is.na(Distance))
 table(test$Country, test$Year, useNA = "always")
 
@@ -298,13 +331,23 @@ number_measured <- number_measured %>%
 # put 0 instead of NA
 number_measured[is.na(number_measured)] <- 0
 
+# select years to keep only the last 10 years for plot
+year_map=c((max(dat$Year)-9):max(dat$Year))
+
+
 ##### Plot total number along the time series by country. NOT Required in the report ####
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/rajas_elasmobranch_by_source.jpeg",sep=""),width = 200, height = 200, units = "mm", res = 400)
-ggplot(number_measured %>% filter(Year %in% c(2000:2024), scientificname %in% rays))+
+jpeg(file=paste(user_wd,"elasmo_output/rajas_elasmobranch_by_source.jpeg",sep="/"),width = 200, height = 200, units = "mm", res = 400)
+ggplot(number_measured %>% filter(scientificname %in% rays,Survey!="BTS-VIII"))+
   geom_bar(aes(x=Year, y=NumMeas, fill=Country), stat = "identity", position="dodge") +
   facet_wrap(~scientificname, scales="free_y")
 dev.off() 
 
+##### Plot total number for BTS-VIII along the time series. NOT Required in the report ####
+jpeg(file=paste(user_wd,"elasmo_output/rajas_elasmobranch_by_source_8ab.jpeg",sep="/"),width = 200, height = 200, units = "mm", res = 400)
+ggplot(number_measured %>% filter(scientificname %in% rays,Survey=="BTS-VIII"))+
+  geom_bar(aes(x=Year, y=NumMeas, fill=Country), stat = "identity", position="dodge") +
+  facet_wrap(~scientificname, scales="free_y")
+dev.off() 
 
 # Calculate numbers per station
 SpecNo <- datspec %>% 
@@ -315,17 +358,32 @@ SpecNo <- datspec %>%
                                   ifelse(No>0 & SubFactor>0, No*SubFactor, NA))) # when TotalNo not filled in, calculate TotalNo based on HLNoAtLngt and SubFactor
 
 ##### Plot total number along the time series by country. Required in the report ####
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/rajas_elasmobranch.jpeg",sep=""),width = 200, height = 200, units = "mm", res = 400)
-ggplot(SpecNo %>% filter(scientificname %in% rays))+
+jpeg(file=paste(user_wd,"elasmo_output/rajas_elasmobranch.jpeg",sep=""),width = 200, height = 200, units = "mm", res = 400)
+ggplot(SpecNo %>% filter(scientificname %in% rays,Survey!="BTS-VIII"))+
   geom_bar(aes(x=Year, y=TotalNo1, fill=Country),stat = "identity")+ylab("Total number")+
   facet_wrap(~scientificname, scales = "free_y")+ theme(legend.position=c(0.4,0.2))
 dev.off()
 
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/sharks_elasmobranch_totN.jpeg",sep=""),width = 200, height = 200, units = "mm", res = 400)
-ggplot(SpecNo %>% filter(scientificname %in% sharks))+
+jpeg(file=paste(user_wd,"elasmo_output/sharks_elasmobranch_totN.jpeg",sep="/"),width = 200, height = 200, units = "mm", res = 400)
+ggplot(SpecNo %>% filter(scientificname %in% sharks,Survey!="BTS-VIII"))+
   geom_bar(aes(x=Year, y=TotalNo1, fill=Country),stat = "identity")+ylab("Total number")+
   facet_wrap(~scientificname, scales = "free_y")+ theme(legend.position=c(0.8,0.2))
 dev.off()
+
+
+##### Plot total number along the time series BTS-VIII. Required in the report ####
+jpeg(file=paste(user_wd,"elasmo_output/rajas_elasmobranch_8ab.jpeg",sep="/"),width = 200, height = 200, units = "mm", res = 400)
+ggplot(SpecNo %>% filter(scientificname %in% rays,Survey=="BTS-VIII"))+
+  geom_bar(aes(x=Year, y=TotalNo1, fill=Country),stat = "identity")+ylab("Total number")+
+  facet_wrap(~scientificname, scales = "free_y")
+dev.off()
+
+jpeg(file=paste(user_wd,"elasmo_output/sharks_elasmobranch_totN_8ab.jpeg",sep="/"),width = 200, height = 200, units = "mm", res = 400)
+ggplot(SpecNo %>% filter(scientificname %in% sharks,Survey=="BTS-VIII"))+
+  geom_bar(aes(x=Year, y=TotalNo1, fill=Country),stat = "identity")+ylab("Total number")+
+  facet_wrap(~scientificname, scales = "free_y")
+dev.off()
+
 
 ##########################################
 ##########################################
@@ -350,6 +408,13 @@ xmax <- max(stations$ShootLong)
 ymin <- 48.5    # using min(stations$ShootLat) there is a wrong Lat data in 2012
 ymax <- max(stations$ShootLat)
 
+
+## set map boundaries BTS-VIII
+stations_BTS_VIII<-stations%>%filter(Survey=="BTS-VIII")
+xmin_8 <- min(stations_BTS_VIII$ShootLong)
+xmax_8 <- max(stations_BTS_VIII$ShootLong)
+ymin_8 <- min(stations_BTS_VIII$ShootLat)
+ymax_8 <- max(stations_BTS_VIII$ShootLat)
 ###################
 ### Map by Year ##
 ###################
@@ -368,12 +433,12 @@ ymax <- max(stations$ShootLat)
 
 #### PLOT only the last ten years  CPUE by haul, remember to change years###
 # Scyliorhinus
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/Scyliorhinus canicula_by_year.jpeg",sep=""),width = 250, height = 250, units = "mm", res = 300)
+jpeg(file=paste(user_wd,"elasmo_output/Scyliorhinus canicula_by_year.jpeg",sep="/"),width = 250, height = 250, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
-  geom_point(data=stations %>% filter(Year %in% c(2014:2024)), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
-  geom_point(data=byhaul %>% filter(Year %in% c(2014:2024), scientificname=="Scyliorhinus canicula"),
+  geom_point(data=stations %>% filter(Year %in% year_map ,Survey!="BTS-VIII"), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
+  geom_point(data=byhaul %>% filter(Year %in% year_map , scientificname=="Scyliorhinus canicula",Survey!="BTS-VIII"),
              (aes(ShootLong,ShootLat,size=sqrt_fishkm2)), color="red",alpha=0.5) +  #plot catches by haul
   facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
   labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", title = expression(italic("Scyliorhinus canicula") ~ "CPUE by haul"), fill="CPUE (sqrt n/km^2)") +
@@ -385,13 +450,34 @@ ggplot()+
   guides(colour = guide_legend(override.aes = list(size = 8)))
 dev.off()  
 
-# Mustelus
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/Mustelus_map_by_year.jpeg",sep=""),width = 250, height = 250, units = "mm", res = 300)
+
+#### PLOT only the last ten years  CPUE by haul BTS-VIII, remember to change years###
+## for BTS-VIII plot only Scyliorinus because no other sherks are caught (2 specimens of mustelus up to 2024)
+# Scyliorhinus
+jpeg(file=paste(user_wd,"elasmo_output/Scyliorhinus canicula_by_year_8ab.jpeg",sep="/"),width = 250, height = 250, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
-  geom_point(data=stations %>% filter(Year %in% c(2014:2024)), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
-  geom_point(data=byhaul %>% filter(Year %in% c(2014:2024), scientificname=="Mustelus"),
+  geom_point(data=stations %>% filter(Year %in% year_map ,Survey=="BTS-VIII"), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
+  geom_point(data=byhaul %>% filter(Year %in% year_map, scientificname=="Scyliorhinus canicula",Survey=="BTS-VIII"),
+             (aes(ShootLong,ShootLat,size=sqrt_fishkm2)), color="red",alpha=0.5) +  #plot catches by haul
+  facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
+  labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", title = expression(italic("Scyliorhinus canicula") ~ "CPUE by haul"), fill="CPUE (sqrt n/km^2)") +
+  coord_quickmap(xlim = c(xmin_8, xmax_8), ylim = c(ymin_8, ymax_8)) +
+  theme(text=element_text(size=22), axis.text = element_text(size = 14)) +  
+  theme(legend.title = element_text(face = "bold", size = 18)) + 
+  theme(legend.position="bottom",legend.direction = "horizontal", axis.title = element_text(size = 18)) + 
+  theme(legend.text=element_text(face = "italic",size=16)) + 
+  guides(colour = guide_legend(override.aes = list(size = 8)))
+dev.off()  
+
+# Mustelus
+jpeg(file=paste(user_wd,"elasmo_output/Mustelus_map_by_year.jpeg",sep="/"),width = 250, height = 250, units = "mm", res = 300)
+ggplot()+
+  heme_light()+
+  geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
+  geom_point(data=stations %>% filter(Year %in% year_map,Survey!="BTS-VIII"), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
+  geom_point(data=byhaul %>% filter(Year %in% year_map, scientificname=="Mustelus",Survey!="BTS-VIII"),
              (aes(ShootLong,ShootLat,size=sqrt_fishkm2)), color="red",alpha=0.5) +  #plot catches by haul
   #scale_shape_manual(values=c(15,8,17,16,18,10,7)) +
   facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
@@ -405,12 +491,12 @@ ggplot()+
 dev.off()  
 
 # Other sharks
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/Other_sharks_by_year.jpeg",sep=""),width = 250, height = 300, units = "mm", res = 300)
+jpeg(file=paste(user_wd,"elasmo_output/Other_sharks_by_year.jpeg",sep="/"),width = 250, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
-  geom_point(data=stations %>% filter(Year %in% c(2014:2024)), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
-  geom_point(data=byhaul %>% filter(Year %in% c(2014:2024), scientificname %in% c("Galeorhinus galeus","Scyliorhinus stellaris", "Squalus acanthias")),(aes(ShootLong,ShootLat,color=scientificname, size=sqrt_fishkm2)), alpha=0.5) +  #plot catches by haul
+  geom_point(data=stations %>% filter(Year %in% year_map,Survey!="BTS-VIII"), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
+  geom_point(data=byhaul %>% filter(Year %in% year_map, scientificname %in% c("Galeorhinus galeus","Scyliorhinus stellaris", "Squalus acanthias"),Survey!="BTS-VIII"),(aes(ShootLong,ShootLat,color=scientificname, size=sqrt_fishkm2)), alpha=0.5) +  #plot catches by haul
   facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
   labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", title = "Other sharks CPUE by haul", fill="CPUE (sqrt n/km^2)") +
   coord_quickmap(xlim = c(xmin, xmax), ylim = c(ymin, ymax)) +
@@ -423,16 +509,33 @@ dev.off()
 
 #### Rays ### 
 ## note to change years to years of interest
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/rajas_map_by_year.jpeg",sep=""),width = 350, height = 350, units = "mm", res = 300)
+jpeg(file=paste(user_wd,"elasmo_output/rajas_map_by_year.jpeg",sep="/"),width = 350, height = 350, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
-  geom_point(data=byhaul %>% filter(Year %in% c(2014:2024),scientificname %in% rays),
+  geom_point(data=byhaul %>% filter(Year %in% year_map,scientificname %in% rays,Survey!="BTS-VIII"),
              (aes(ShootLong, ShootLat, colour=scientificname, shape=scientificname,size=sqrt_fishkm2)), alpha=0.5) + #plot catches by haul
-  geom_point(data=stations %>% filter(Year %in% c(2014:2024)), aes(ShootLong,ShootLat), shape='.', size=0.05) +  #plot the fished stations
+  geom_point(data=stations %>% filter(Year %in% year_map,Survey!="BTS-VIII"), aes(ShootLong,ShootLat), shape='.', size=0.05) +  #plot the fished stations
   facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
   labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", title = "Rajas CPUE by haul", fill="CPUE (sqrt n/km^2)") +
   coord_quickmap(xlim = c(xmin, xmax), ylim = c(ymin, ymax)) +
+  theme(text=element_text(size=22), axis.text = element_text(size = 14))+
+  theme(legend.title = element_text(face = "bold", size = 18))+ 
+  theme(legend.position="bottom",legend.direction = "horizontal", axis.title = element_text(size = 18))+ theme(legend.text=element_text(face = "italic",size=16))+ guides(shape = guide_legend(nrow=4, override.aes = list(size = 8)))+ scale_shape_manual(values=c(15,8,17,16,18,10,7))
+dev.off()  
+
+#### Rays BTS-VIII ### 
+## note to change years to years of interest
+jpeg(file=paste(user_wd,"elasmo_output/rajas_map_by_year_8ab.jpeg",sep="/"),width = 350, height = 350, units = "mm", res = 300)
+ggplot()+
+  theme_light()+
+  geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
+  geom_point(data=byhaul %>% filter(Year %in% year_map,scientificname %in% rays,Survey=="BTS-VIII"),
+             (aes(ShootLong, ShootLat, colour=scientificname, shape=scientificname,size=sqrt_fishkm2)), alpha=1) + #plot catches by haul
+  geom_point(data=stations %>% filter(Year %in% year_map,Survey=="BTS-VIII"), aes(ShootLong,ShootLat), shape='.', size=0.05) +  #plot the fished stations
+  facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
+  labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", title = "Rajas CPUE by haul", fill="CPUE (sqrt n/km^2)") +
+  coord_quickmap(xlim = c(xmin_8, xmax_8), ylim = c(ymin_8, ymax_8)) +
   theme(text=element_text(size=22), axis.text = element_text(size = 14))+
   theme(legend.title = element_text(face = "bold", size = 18))+ 
   theme(legend.position="bottom",legend.direction = "horizontal", axis.title = element_text(size = 18))+ theme(legend.text=element_text(face = "italic",size=16))+ guides(shape = guide_legend(nrow=4, override.aes = list(size = 8)))+ scale_shape_manual(values=c(15,8,17,16,18,10,7))
@@ -454,14 +557,15 @@ byhaultot <- SpecNotot %>%
   mutate(fishkm2 = TotalNo1/sweptarea2) %>% 
   mutate(sqrt_fishkm2 = sqrt(fishkm2))
 
-#### Rays, PLOT not required for SHARKS in the report #### 
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/raja_map_TOT.jpeg",sep=""),width = 300, height = 400, units = "mm", res = 300)
+#### Rays, PLOT not required in the report #### 
+jpeg(file=paste(user_wd,"elasmo_output/raja_map_TOT.jpeg",sep="/"),width = 300, height = 400, units = "mm", res = 300)
 ggplot()+
   theme_light()+
-  geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
-  geom_point(data=byhaultot %>% filter(scientificname %in% rays),
-             (aes(ShootLong,ShootLat, colour=scientificname,shape=scientificname, size=sqrt_fishkm2)), alpha=0.5) + scale_shape_manual(values=c(15,8,17,16,18,10,7)) +  #plot catches by haul
-  geom_point(data=stations , aes(ShootLong,ShootLat), shape='.', size=0.05) +  #plot the fished stations
+  #geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
+  geom_point(data=byhaultot %>% filter(scientificname %in% rays,Survey!="BTS-VIII"),
+             (aes(ShootLong,ShootLat, colour=scientificname,shape=scientificname, size=sqrt_fishkm2)), alpha=0.5) + 
+  scale_shape_manual(values=c(15,8,17,16,18,10,7)) +  #plot catches by haul
+  geom_point(data=stations%>%filter(Survey!="BTS-VIII") , aes(ShootLong,ShootLat), shape='.', size=0.05) +  #plot the fished stations
   labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", title = "Rajas CPUE by haul", fill="CPUE (sqrt n/km^2)") +
   coord_quickmap(xlim = c(xmin, xmax), ylim = c(ymin, ymax)) +
   theme(text=element_text(size=22), axis.text = element_text(size = 14))+
@@ -471,16 +575,14 @@ ggplot()+
 dev.off()
 
 ##### Sharks, PLOT not required for RAYS in the report #####
-
-
-
-jpeg(file=paste("./ADHOC/OUTPUT/WGBEAM/elasmo/sharks_map_TOT_by_species.jpeg",sep=""),width = 300, height = 300, units = "mm", res = 300)
+jpeg(file=paste(user_wd,"elasmo_output/sharks_map_TOT_by_species.jpeg",sep="/"),width = 300, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
-  geom_point(data=byhaultot %>% filter(scientificname %in% sharks),
-             (aes(ShootLong,ShootLat, colour=scientificname,shape=scientificname, size=sqrt_fishkm2)), alpha=0.5) + scale_shape_manual(values=c(15,8,17,16,18,10,7)) +  #plot catches by haul
-  geom_point(data=stations , aes(ShootLong,ShootLat), shape='.', size=0.05) +  #plot the fished stations
+  geom_point(data=byhaultot %>% filter(scientificname %in% sharks,Survey!="BTS-VIII"),
+             (aes(ShootLong,ShootLat, colour=scientificname,shape=scientificname, size=sqrt_fishkm2)), alpha=0.5) + 
+  scale_shape_manual(values=c(15,8,17,16,18,10,7)) +  #plot catches by haul
+  geom_point(data=stations %>%filter(Survey!="BTS-VIII"), aes(ShootLong,ShootLat), shape='.', size=0.05) +  #plot the fished stations
   facet_wrap(~scientificname) +
   labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", title ="Sharks CPUE by haul", fill="CPUE (sqrt n/km^2)") +
   coord_quickmap(xlim = c(xmin, xmax), ylim = c(ymin, ymax))+
