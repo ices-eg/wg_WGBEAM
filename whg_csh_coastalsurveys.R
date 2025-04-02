@@ -26,9 +26,23 @@ HHSNS <-getDATRAS(record = "HH",survey = "SNS",years= y:yTo,quarters = c(3,4))
 HH <- rbind(HHDYFS, HHSNS)
 
 HLDYFS <-getDATRAS(record = "HL", survey = "DYFS", years= y:yTo, quarters = c(3,4))
-HLSNS <- getDATRAS(record = "HL", survey = "DYFS", years= y:yTo, quarters = c(3,4))
+HLSNS <- getDATRAS(record = "HL", survey = "SNS", years= y:yTo, quarters = c(3,4))
 
 HL <- rbind(HLDYFS, HLSNS)
+
+
+# test
+# my_map <- map_data("worldHires")
+# 
+# test <- ggplot(my_map) +
+#   geom_polygon(aes(long, lat, group=group), fill = "grey55") +
+#   geom_point(data = HH %>% filter(Survey == "SNS"), aes(x = ShootLong, y = ShootLat), colour = "black", size = 2) +
+#   labs(x = "Longitude (Degrees)", y = "Latitude (Degrees)", size="CPUE (numbers/h)") +
+#   coord_quickmap(xlim = c(2.5, 9), ylim = c(51, 55.5)) + 
+#   theme(legend.title = element_text(size = 40), legend.text = element_text(size = 40), plot.title = element_text(hjust = 0.5, size = 40), axis.text = element_text(size = 40), axis.text.x = element_text(size = 40), axis.title = element_text(size = 40), strip.text = element_text(size = 40)) + facet_wrap(~Year) 
+
+
+
 
 #--- Convert haul duration to hours
 table(HH$HaulDur, HH$Survey) # haulduration of 1 min? NL and DE
@@ -46,7 +60,7 @@ head(HL)
 table(HL$SpecCode)
 
 HLwhg <- HL %>% 
-  filter(SpecCode == 126438)
+  filter(SpecCode == 126438) 
 
 head(HLwhg)
 table(HLwhg$StNo, useNA = "always")
