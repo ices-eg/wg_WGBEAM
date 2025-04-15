@@ -5,7 +5,7 @@
 # 
 # Original script created by Loes, Gudjon, Giuseppe & Vaishav (25/03/2020; updated on 26/03/2021 by Loes)
 # Modified by Francesco Masnadi (11/05/2022)
-# Modified by Antonio Palermino and Lies Vansteenbrugge (23/03/2025)
+# Modified by Antonio Palermino, Lies Vansteenbrugge and Laura Sabatini (23/03/2025)
 # 
 # https://github.com/ices-eg/wg_WGBEAM/blob/master/Evaluate%20sp-tmp%20distribution%20for%20%20%20%20elasmo.r
 # 
