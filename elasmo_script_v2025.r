@@ -5,6 +5,7 @@
 # 
 # Original script created by Loes, Gudjon, Giuseppe & Vaishav (25/03/2020; updated on 26/03/2021 by Loes)
 # Modified by Francesco Masnadi (11/05/2022)
+# Modified by Antonio Palermino and Lies Vansteenbrugge (23/03/2025)
 # 
 # https://github.com/ices-eg/wg_WGBEAM/blob/master/Evaluate%20sp-tmp%20distribution%20for%20%20%20%20elasmo.r
 # 
@@ -20,7 +21,7 @@ library(tidyr)
 library(worrms)
 
 # Set your own directory to save outputs
-user_wd<-"C:/Users/a.palermino/OneDrive - CNR/Assegno Scarcella/WGBEAM_2025"
+user_wd<-"C:/Users/a.palermino/OneDrive - CNR/Assegno Scarcella/WGBEAM_2025" # to be changed
 if(!dir.exists(path=paste(user_wd,"elasmo_output"))) dir.create(path=paste0(user_wd,"/elasmo_output"))
 
 ##########################################
@@ -361,13 +362,13 @@ SpecNo <- datspec %>%
 jpeg(file=paste(user_wd,"elasmo_output/rajas_elasmobranch.jpeg",sep=""),width = 200, height = 200, units = "mm", res = 400)
 ggplot(SpecNo %>% filter(scientificname %in% rays,Survey!="BTS-VIII"))+
   geom_bar(aes(x=Year, y=TotalNo1, fill=Country),stat = "identity")+ylab("Total number")+
-  facet_wrap(~scientificname, scales = "free_y")+ theme(legend.position=c(0.4,0.2))
+  facet_wrap(~scientificname, scales = "free_y")+ theme(legend.position=c(0.4,0.2)) # adjust legend position here if needed
 dev.off()
 
 jpeg(file=paste(user_wd,"elasmo_output/sharks_elasmobranch_totN.jpeg",sep="/"),width = 200, height = 200, units = "mm", res = 400)
 ggplot(SpecNo %>% filter(scientificname %in% sharks,Survey!="BTS-VIII"))+
   geom_bar(aes(x=Year, y=TotalNo1, fill=Country),stat = "identity")+ylab("Total number")+
-  facet_wrap(~scientificname, scales = "free_y")+ theme(legend.position=c(0.8,0.2))
+  facet_wrap(~scientificname, scales = "free_y")+ theme(legend.position=c(0.8,0.2)) # adjust legend position here if needed
 dev.off()
 
 
