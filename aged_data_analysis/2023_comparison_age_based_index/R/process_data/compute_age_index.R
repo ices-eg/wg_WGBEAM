@@ -8,12 +8,13 @@ df_alk_prop_index <- compute_alk(df_hh_ca,
                                 index_grouping_var = NULL
                                 ) %>%
   mutate(LngtClass = factor(LngtClass)) %>%
-  select(LngtClass, Age, Proportion) %>%
-  pivot_wider(id_cols = LngtClass,
-              names_from = Age,
-              values_from = Proportion ,
-              values_fill = 0,
-              names_prefix = "age")
+  select(LngtClass, Age, Proportion) %>% 
+   pivot_wider(id_cols = c(ScientificName, LngtClass),
+               names_from =Age,
+               values_from = Proportion,
+               names_prefix =  "age",
+               values_fill = 0)
+
 
 ### Compute n fish in HL with a  Length class
 df_hh_hl_to_age <- df_hh_hl %>%
