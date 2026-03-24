@@ -57,13 +57,13 @@ dfs_ca_species <- df_ca %>%
 
 ###-----------------------------------------------------------------------------
 ### get scientific names from worms data base with worms package
-df_scientific_names <- worrms::wm_id2name_(as.numeric(unique(df_ca$Valid_Aphia))) %>%
+df_scientific_names <- worrms::wm_id2name_(as.numeric(unique(as.character(df_ca$Valid_Aphia)))) %>%
   utils::stack(.) %>%
   dplyr::rename(
     AphiaID = .data$ind,
     ScientificName = .data$values
   ) %>%
-  dplyr::mutate(AphiaID = emhUtils::as_numeric_factor(.data$AphiaID))
+  dplyr::mutate(AphiaID = as_factor(.data$AphiaID))
 
 dfs_ca_species <- left_join(dfs_ca_species, df_scientific_names,
                             by = c("Valid_Aphia" = "AphiaID"))
