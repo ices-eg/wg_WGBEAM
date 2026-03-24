@@ -1,5 +1,11 @@
 # Comparison of BTS aged data 
 
+## Before running scripts install emhUtils package
+install.packages("remotes")
+library(remotes)
+remotes::install_gitlab(repo = "emh-lab/emhutils",
+                        host = "https://gitlab.ifremer.fr")
+
 ## Analysis of aged data
 Run `analysis/datras_ca_aged_species.R` to plot figures of annex 7 in WGBEAM 2023 report.
 
