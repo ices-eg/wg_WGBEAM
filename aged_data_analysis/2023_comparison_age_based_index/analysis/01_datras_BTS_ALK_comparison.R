@@ -17,7 +17,7 @@ source("R/fun/boot.R")
 survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
-year_vec <- (2020:2024)
+year_vec <- (2020:2025)
 
 ###
 quarter_vec <- c(1, 2, 3, 4)
@@ -65,6 +65,8 @@ if (species_name == "Limanda limanda") {
 ###-----------------------------------------------------------------------------
 ### Make plots for age structure
 source("R/plot_data/plot_length_number.R")
+source("R/plot_data/plot_length_at_age.R")
+
 
 ###-----------------------------------------------------------------------------
 ### Compute mean over haul
