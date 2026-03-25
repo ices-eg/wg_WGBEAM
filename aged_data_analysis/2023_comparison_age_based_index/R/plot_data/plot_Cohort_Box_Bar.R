@@ -153,11 +153,14 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
     plot_dat <- plot_dat %>% filter(!EastWest %in% c("BTS Celtic Sea & Irish Sea")) 
   }
   
+  plot_dat$LngtClass <- round(plot_dat$LngtClass,0)
+  
   ### plot can then be facet wrapped by correct eastwest (not yet split by species!)
   p1 <- ggplot(plot_dat, aes(LngtClass, fill = factor(Age), color = factor(Age))) +
     geom_histogram(alpha = 0.5,  binwidth = 1) +
     theme_classic() +
-    scale_x_continuous(breaks = seq(min(spatial_df_hh_ca_5$LngtClass, na.rm = T), max(spatial_df_hh_ca_5$LngtClass, na.rm = T), by = 2), limits = c(0,max(spatial_df_hh_ca_5$LngtClass))) +
+    scale_x_continuous(breaks = seq(0, max(plot_dat$LngtClass, na.rm = T)+1, by = 2)
+                       ) +
     labs(x = "Fish length (cm)", fill = "Age", color = "Age")+
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
     facet_wrap(EastWest~.,scale="free_y",nrow=1)+
@@ -165,12 +168,14 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
   
   ### box plot  (not yet split by species!)
   
-  p2 <- ggplot(plot_dat, aes(x = Age, y = LngtClass, fill = factor(Age),group = Age)) +
+  p2 <- ggplot(plot_dat, aes(x = as.numeric(Age), y = LngtClass, fill = factor(Age),group = Age)) +
     geom_boxplot() +
     theme_classic() +
-    labs( y = "Length Class (cm)", fill = "Age") +
+    labs( y = "Length Class (cm)", fill = "Age",x = "Age") +
     #facet_wrap(~Year) +
-    scale_x_discrete(limits = levels(factor(plot_dat$Age)))+
+    scale_x_continuous(limits = c(-1,max(plot_dat$Age)+1),
+                     breaks = c(seq(0,max(plot_dat$Age)+2,by =1))
+                     )+
     scale_y_continuous(
       limits = c(0, 60),  # Specify your desired limits
       breaks = seq(0, 60, 10) 
@@ -180,7 +185,7 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
     ggtitle(plot_dat$ScientificName)
   
 
-  ggsave(plot =grid.arrange(nrow=2,p2,p1),paste("figures/Cohortplots/Cohort_plot_",i,".png",sep=""),width = 12, height = 12, dpi = 300)
+  ggsave(plot =grid.arrange(nrow=2,p2,p1),paste("figures/Cohortplots/Cohort_plot_",i,".png",sep=""),width = 14, height = 12, dpi = 300)
   rm(p1,p2)
 }
 
