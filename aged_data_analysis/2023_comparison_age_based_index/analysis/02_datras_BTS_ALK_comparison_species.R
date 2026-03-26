@@ -17,7 +17,7 @@ source("R/fun/boot.R")
 survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
-year_vec <- (2020:2024)
+year_vec <- (2020:2025)
 
 ###
 quarter_vec <- c(1, 2, 3, 4)
