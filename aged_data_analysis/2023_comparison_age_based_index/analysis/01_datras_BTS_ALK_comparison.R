@@ -14,7 +14,7 @@ source("R/fun/boot.R")
 
 ###-----------------------------------------------------------------------------
 ### survey code
-survey_code <- "BTS-VIII"
+survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
 year_vec <- (2020:2025)
@@ -25,8 +25,9 @@ quarter_vec <- c(1, 2, 3, 4)
 ### Species species_code from datras and scientificname from worms database
 ### 127143 : "Pleuronectes platessa"
 ### 127139 : "Limanda limanda"
-### 127160 : "Solea solea
-species_code <- "127160"
+### 127160 : "Solea solea"
+### 127140 : "Lemon sole"
+species_code <- "127140"
 species_name <- worrms::wm_id2name(as.numeric(species_code))
 path_figures <- glue("{path_figures}/{survey_code}/{species_name}")
 dir.create(path_figures, showWarnings = FALSE, recursive = TRUE)
@@ -77,3 +78,11 @@ df_alk_prop_long <- compute_alk(df_datras_hh_ca = df_hh_ca,
                                 index_grouping_var = index_grouping_var)
 
 source("R/plot_data/plot_alk_prop.R")
+
+###-----------------------------------------------------------------------------
+### Compute age-index as numbers/km2
+source("R/process_data/compute_age_index.R")
+
+###-----------------------------------------------------------------------------
+### Plot box and bar plots by species for BTS all, BTS East and west , Celtic ad Irish
+source("R/plot_data/plot_Cohort_Box_Bar.R")

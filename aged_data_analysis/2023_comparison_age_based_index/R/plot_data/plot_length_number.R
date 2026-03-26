@@ -20,9 +20,12 @@ plot_hist_length_str_fyear <- ggplot(data = dfs_hl_year,
                                      aes(x = LngtClass,
                                          y = n_fish)) +
   geom_col() +
-  facet_grid( ScientificName ~ Year)
-print(plot_hist_length_str_fyear)
+  facet_grid( ScientificName ~ Year) +
+  theme_bw() +
+  ylab("Number of fish") +
+  xlab("Length class (in cm)")
 
+print(plot_hist_length_str_fyear)
 ggsave(plot = plot_hist_length_str_fyear,
        filename = here(glue("{path_figures}/plot_hist_length_str_fyear.{device_figure}")),
        device = device_figure)
