@@ -64,13 +64,19 @@ dat_w <- spatial_df_hh_ca_3_NORTHSEA %>%
 
 #east component 
 dat_e <- spatial_df_hh_ca_3_NORTHSEA  %>%  filter(ShootLong >= 3 & ShootLat >= 51 & ShootLat <= 57.5) %>% mutate(EastWest="BTS Eastern North Sea")
+
+#### 7d 
+dat_7d <- spatial_df_hh_ca_3_NORTHSEA  %>%  filter(Area_27 %in% c("7.d")) %>% mutate(EastWest="BTS 7D North Sea")
+
 #bind
 dat_ew <- rbind(dat_w,dat_e)
 # use the check key for everything not inside 51, 57 
 dat_out <- spatial_df_hh_ca_3_NORTHSEA %>% filter(!checkKey %in% dat_ew$checkKey) %>% mutate(EastWest="BTS NorthS Sea outside 51N-57N")
 
 ###### bind back together  and remvoe check key 
-spatial_df_hh_ca_3_NORTHSEA_2 <- rbind(dat_ew,dat_out) %>% select(-checkKey)
+spatial_df_hh_ca_3_NORTHSEA_2 <- rbind(dat_ew,dat_out) 
+
+spatial_df_hh_ca_3_NORTHSEA_2 <- rbind(spatial_df_hh_ca_3_NORTHSEA_2,dat_7d) %>% select(-checkKey)
 
 #### stick parts back together chck dims 
 spatial_df_hh_ca_4 <- rbind(spatial_df_hh_ca_3_NORTHSEA_2,spatial_df_hh_ca_3_CEL_IRISH)
@@ -84,10 +90,10 @@ sum(spatial_df_hh_ca_4$CANoAtLngt)-dim(spatial_df_hh_ca_5)[1] # if not zero prob
 ############# now to test some of the graphs 
 spatial_df_hh_ca_5
 ### we need to have the whole BTS north sea plus eas and west so we split apply and combine (good old hadly)
-plot_dat_1 <- spatial_df_hh_ca_5 %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N")) %>% 
+plot_dat_1 <- spatial_df_hh_ca_5 %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N","BTS 7D North Sea")) %>% 
   mutate(EastWest ="BTS North Sea")
 
-plot_dat_2 <-spatial_df_hh_ca_5 %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea"))
+plot_dat_2 <-spatial_df_hh_ca_5 %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS 7D North Sea"))
 
 plot_dat_3 <-spatial_df_hh_ca_5 %>% filter(EastWest %in% c("BTS Celtic Sea & Irish Sea"))
 
@@ -100,34 +106,36 @@ plot_dat <- rbind(plot_dat,plot_dat_3)
 #### yes i have left the NA in the plot for now....
 #####################################################
 
-### plot can then be facet wrapped by correct eastwest (not yet split by species!)
-p1 <- ggplot(plot_dat, aes(LngtClass, fill = factor(Age), color = factor(Age))) +
-  geom_histogram(alpha = 0.5,  binwidth = 1) +
-  theme_classic() +
-  scale_x_continuous(breaks = seq(min(spatial_df_hh_ca_5$LngtClass, na.rm = T), max(spatial_df_hh_ca_5$LngtClass, na.rm = T), by = 2), limits = c(0,max(spatial_df_hh_ca_5$LngtClass))) +
-  labs(x = "Fish length (cm)", fill = "Age", color = "Age")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  facet_wrap(EastWest~.,scale="free_y",nrow=1)
-  #+ggtitle(plot_dat$ScientificName) 
-
-### box plot  (not yet split by species!)
-
-p2 <- ggplot(plot_dat, aes(x = Age, y = LngtClass, fill = factor(Age),group = Age)) +
-  geom_boxplot() +
-  theme_classic() +
-  labs( y = "Length Class (cm)", fill = "Age") +
-  #facet_wrap(~Year) +
-  scale_x_discrete(limits = levels(factor(plot_dat$Age)))+
-  scale_y_continuous(
-    limits = c(0, 60),  # Specify your desired limits
-    breaks = seq(0, 60, 10) 
-  )+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  facet_wrap(EastWest~.,scale="free_y",nrow=1)
-
-##### check plot arrangement 
-
-grid.arrange(nrow=2,p2,p1)
+# ### plot can then be facet wrapped by correct eastwest (not yet split by species!)
+# p1 <- ggplot(plot_dat, aes(LngtClass, fill = factor(Age), color = factor(Age))) +
+#   geom_histogram(alpha = 0.5,  binwidth = 1) +
+#   theme_classic() +
+#   scale_x_continuous(breaks = seq(min(spatial_df_hh_ca_5$LngtClass, na.rm = T), max(spatial_df_hh_ca_5$LngtClass, na.rm = T), by = 2), limits = c(0,max(spatial_df_hh_ca_5$LngtClass))) +
+#   labs(x = "Fish length (cm)", fill = "Age", color = "Age")+
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+#   facet_wrap(EastWest~.,scale="free_y",nrow=1)
+#   #+ggtitle(plot_dat$ScientificName) 
+# 
+# ### box plot  (not yet split by species!)
+# 
+# p2 <- ggplot(plot_dat, aes(x = Age, y = LngtClass, fill = factor(Age),group = Age)) +
+#   geom_boxplot() +
+#   theme_classic() +
+#   labs( y = "Length Class (cm)", fill = "Age") +
+#   #facet_wrap(~Year) +
+#   scale_x_discrete(limits = levels(factor(plot_dat$Age)))+
+#   scale_y_continuous(
+#     limits = c(-2, 80),  # Specify your desired limits
+#     breaks = seq(0, 80, 10)
+#   )+
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+#   # facet_wrap(EastWest~.,scale="free_y",nrow=1)
+#   facet_wrap(~factor(EastWest,levels = c("BTS Celtic Sea & Irish Sea","BTS 7D North Sea","BTS Western North Sea","BTS North Sea","BTS Eastern North Sea" )),scale="free_y",nrow=1)
+# 
+# 
+# ##### check plot arrangement 
+# 
+# grid.arrange(nrow=2,p2,p1)
 
 
 ### plot out the cohorts 
@@ -135,13 +143,18 @@ grid.arrange(nrow=2,p2,p1)
 ### fear not the loop for it is a friend 
 for(i in unique(spatial_df_hh_ca_5$ScientificName)){
   
+  
   Species_dat <- spatial_df_hh_ca_5 %>% filter(ScientificName == i, !is.na(Age))
+  if(!i %in% c("Pleuronectes platessa","Solea solea")){ 
+    Species_dat <- Species_dat %>% filter(!EastWest %in% c("BTS 7D North Sea"))
+    }
+  
   
   ### we need to have the whole BTS north sea plus eas and west so we split apply and combine (good old hadly)
-  plot_dat_1 <- Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N")) %>% 
+  plot_dat_1 <- Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N","BTS 7D North Sea")) %>% 
     mutate(EastWest ="BTS North Sea")
   
-  plot_dat_2 <-Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea"))
+  plot_dat_2 <-Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS 7D North Sea"))
   
   plot_dat_3 <-Species_dat %>% filter(EastWest %in% c("BTS Celtic Sea & Irish Sea"))
   
@@ -163,7 +176,7 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
                        ) +
     labs(x = "Fish length (cm)", fill = "Age", color = "Age")+
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-    facet_wrap(EastWest~.,scale="free_y",nrow=1)+
+    facet_wrap(~factor(EastWest,levels = c("BTS Celtic Sea & Irish Sea","BTS 7D North Sea","BTS Western North Sea","BTS North Sea","BTS Eastern North Sea" )),scale="free_y",nrow=1)  +
     ggtitle(plot_dat$ScientificName) 
   
   ### box plot  (not yet split by species!)
@@ -181,27 +194,22 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
       breaks = seq(0, 60, 10) 
     )+
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-    facet_wrap(EastWest~.,scale="free_y",nrow=1)+
+    facet_wrap(~factor(EastWest,levels = c("BTS Celtic Sea & Irish Sea","BTS 7D North Sea","BTS Western North Sea","BTS North Sea","BTS Eastern North Sea" )),scale="free_y",nrow=1)+
     ggtitle(plot_dat$ScientificName)
   
 
-  ggsave(plot =grid.arrange(nrow=2,p2,p1),paste("figures/Cohortplots/Cohort_plot_",i,".png",sep=""),width = 14, height = 12, dpi = 300)
+  ggsave(plot =grid.arrange(nrow=2,p2,p1),paste("figures/Cohortplots/Cohort_plot_",i,".png",sep=""),width = 18, height = 12, dpi = 300)
   rm(p1,p2)
-}
 
 
-
-
-
-for(i in unique(spatial_df_hh_ca_5$ScientificName)){
-  
+  ##### with NAs
   Species_dat <- spatial_df_hh_ca_5 %>% filter(ScientificName == i)
   
   ### we need to have the whole BTS north sea plus eas and west so we split apply and combine (good old hadly)
-  plot_dat_1 <- Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N")) %>% 
+  plot_dat_1 <- Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N","BTS 7D North Sea")) %>% 
     mutate(EastWest ="BTS North Sea")
   
-  plot_dat_2 <-Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea"))
+  plot_dat_2 <-Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS 7D North Sea"))
   
   plot_dat_3 <-Species_dat %>% filter(EastWest %in% c("BTS Celtic Sea & Irish Sea"))
   
@@ -223,7 +231,7 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
     ) +
     labs(x = "Fish length (cm)", fill = "Age", color = "Age")+
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-    facet_wrap(EastWest~.,scale="free_y",nrow=1)+
+    facet_wrap(~factor(EastWest,levels = c("BTS Celtic Sea & Irish Sea","BTS 7D North Sea","BTS Western North Sea","BTS North Sea","BTS Eastern North Sea" )),scale="free_y",nrow=1)+
     ggtitle(plot_dat$ScientificName) 
   
   ### box plot  (not yet split by species!)
@@ -241,7 +249,7 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
       breaks = seq(0, 60, 10) 
     )+
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-    facet_wrap(EastWest~.,scale="free_y",nrow=1)+
+    facet_wrap(~factor(EastWest,levels = c("BTS Celtic Sea & Irish Sea","BTS 7D North Sea","BTS Western North Sea","BTS North Sea","BTS Eastern North Sea" )),scale="free_y",nrow=1)+
     ggtitle(plot_dat$ScientificName)
   
   
