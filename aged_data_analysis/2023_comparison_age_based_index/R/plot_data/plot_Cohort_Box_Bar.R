@@ -152,21 +152,12 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
   if(!i %in% c("Pleuronectes platessa","Solea solea")){ 
     Species_dat <- Species_dat %>% filter(!EastWest %in% c("BTS 7D North Sea"))
     }
-  
-  
+
   ### we need to have the whole BTS north sea plus eas and west so we split apply and combine (good old hadly)
   plot_dat_1 <- Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N","BTS 7D North Sea")) %>% 
     mutate(EastWest ="BTS North Sea")
   
   plot_dat_2 <-Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS 7D North Sea"))
- 
-  Species_dat <- spatial_df_hh_ca_5 %>% filter(ScientificName == i, !is.na(Age))
-
-  ### we need to have the whole BTS north sea plus eas and west so we split apply and combine (good old hadly)
-  plot_dat_1 <- Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N")) %>%
-    mutate(EastWest ="BTS North Sea")
-
-  plot_dat_2 <-Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea"))
   
   plot_dat_3 <-Species_dat %>% filter(EastWest %in% c("BTS Celtic Sea & Irish Sea"))
 
