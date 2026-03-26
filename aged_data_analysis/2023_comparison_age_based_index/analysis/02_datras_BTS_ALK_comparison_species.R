@@ -99,9 +99,3 @@ source("R/process_data/compute_age_index.R")
 ###-----------------------------------------------------------------------------
 ### Plot box and bar plots by species for BTS all, BTS East and west , Celtic ad Irish
 source("R/plot_data/plot_Cohort_Box_Bar.R")
-
-
-
-
-
-
