@@ -193,7 +193,61 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
 
 
 
-
+for(i in unique(spatial_df_hh_ca_5$ScientificName)){
+  
+  Species_dat <- spatial_df_hh_ca_5 %>% filter(ScientificName == i)
+  
+  ### we need to have the whole BTS north sea plus eas and west so we split apply and combine (good old hadly)
+  plot_dat_1 <- Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea","BTS NorthS Sea outside 51N-57N")) %>% 
+    mutate(EastWest ="BTS North Sea")
+  
+  plot_dat_2 <-Species_dat %>% filter(EastWest %in% c("BTS Western North Sea","BTS Eastern North Sea"))
+  
+  plot_dat_3 <-Species_dat %>% filter(EastWest %in% c("BTS Celtic Sea & Irish Sea"))
+  
+  # put back together
+  plot_dat <- rbind(plot_dat_1,plot_dat_2)
+  plot_dat <- rbind(plot_dat,plot_dat_3)
+  
+  if(i=="Limanda limanda"){
+    plot_dat <- plot_dat %>% filter(!EastWest %in% c("BTS Celtic Sea & Irish Sea")) 
+  }
+  
+  plot_dat$LngtClass <- round(plot_dat$LngtClass,0)
+  
+  ### plot can then be facet wrapped by correct eastwest (not yet split by species!)
+  p1 <- ggplot(plot_dat, aes(LngtClass, fill = factor(Age), color = factor(Age))) +
+    geom_histogram(alpha = 0.5,  binwidth = 1) +
+    theme_classic() +
+    scale_x_continuous(breaks = seq(0, max(plot_dat$LngtClass, na.rm = T)+1, by = 2)
+    ) +
+    labs(x = "Fish length (cm)", fill = "Age", color = "Age")+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+    facet_wrap(EastWest~.,scale="free_y",nrow=1)+
+    ggtitle(plot_dat$ScientificName) 
+  
+  ### box plot  (not yet split by species!)
+  
+  p2 <- ggplot(plot_dat, aes(x = as.numeric(Age), y = LngtClass, fill = factor(Age),group = Age)) +
+    geom_boxplot() +
+    theme_classic() +
+    labs( y = "Length Class (cm)", fill = "Age",x = "Age") +
+    #facet_wrap(~Year) +
+    scale_x_continuous(limits = c(-1,max(plot_dat$Age,na.rm = T)+1),
+                       breaks = c(seq(0,max(plot_dat$Age,na.rm = T)+2,by =1))
+    )+
+    scale_y_continuous(
+      limits = c(0, 60),  # Specify your desired limits
+      breaks = seq(0, 60, 10) 
+    )+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+    facet_wrap(EastWest~.,scale="free_y",nrow=1)+
+    ggtitle(plot_dat$ScientificName)
+  
+  
+  ggsave(plot =grid.arrange(nrow=2,p2,p1),paste("figures/Cohortplots/NA_Cohort_plot_",i,".png",sep=""),width = 14, height = 12, dpi = 300)
+  rm(p1,p2)
+}
 
 
 
