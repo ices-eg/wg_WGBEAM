@@ -17,7 +17,7 @@ source("R/fun/boot.R")
 survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
-year_vec <- (2020:2024)
+year_vec <- (2020:2025)
 
 ###
 quarter_vec <- c(1, 2, 3, 4)
@@ -96,3 +96,6 @@ source("R/plot_data/plot_alk_prop.R")
 ### Compute age-index as numbers/km2
 source("R/process_data/compute_age_index.R")
 
+###-----------------------------------------------------------------------------
+### Plot box and bar plots by species for BTS all, BTS East and west , Celtic ad Irish
+source("R/plot_data/plot_Cohort_Box_Bar.R")

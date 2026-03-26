@@ -20,9 +20,12 @@ plot_hist_length_str_fyear <- ggplot(data = dfs_hl_year,
                                      aes(x = LngtClass,
                                          y = n_fish)) +
   geom_col() +
-  facet_grid( ScientificName ~ Year)
-print(plot_hist_length_str_fyear)
+  facet_grid( ScientificName ~ Year) +
+  theme_bw() +
+  ylab("Number of fish") +
+  xlab("Length class (in cm)")
 
+print(plot_hist_length_str_fyear)
 ggsave(plot = plot_hist_length_str_fyear,
        filename = here(glue("{path_figures}/plot_hist_length_str_fyear.{device_figure}")),
        device = device_figure)
@@ -32,10 +35,10 @@ plot_length_str <- ggplot(data = df_hh_hl,
                           aes(x = LngtClass,
                               fill = as.factor(Year))) +
   geom_histogram(stat = "count") +
-  ylab("Number") +
-  xlab("Length class") +
+  ylab("Numbers of fish") +
+  xlab("Length class (in cm") +
   scale_fill_discrete(name = "Year")  +
-  facet_grid( ScientificName ~ .)
+  facet_grid( ScientificName ~ Year)
 
 print(plot_length_str)  +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -70,12 +73,12 @@ plot_length_str_line <- ggplot() +
                 y =  percentage_n_fish,
                 group = Year),
                 colour = "black",
-            size = 2.5,
+            size = 1.5,
             alpha = 0.8) +
-  ylab("Number percentage") +
-  xlab("Length class") +
+  ylab("Percentage of fish") +
+  xlab("Length class (in cm)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  facet_grid(as.formula(glue("ScientificName ~ Country")))
+  facet_grid(as.formula(glue("~ ScientificName")))
 
 print(plot_length_str_line)
 

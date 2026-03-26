@@ -17,7 +17,7 @@ source("R/fun/boot.R")
 survey_code <- "BTS"
 
 ### choose the year for which to compute the IA
-year_vec <- (2020:2024)
+year_vec <- (2020:2025)
 
 ###
 quarter_vec <- c(1, 2, 3, 4)
@@ -25,9 +25,12 @@ quarter_vec <- c(1, 2, 3, 4)
 ### Species species_code from datras and scientificname from worms database
 ### 127143 : "Pleuronectes platessa"
 ### 127139 : "Limanda limanda"
-species_code <- "127139"
+### 127160 : "Solea solea"
+### 127140 : "Lemon sole"
+species_code <- "127140"
 species_name <- worrms::wm_id2name(as.numeric(species_code))
-path_figures <- glue("{path_figures}/{species_name}")
+path_figures <- glue("{path_figures}/{survey_code}/{species_name}")
+dir.create(path_figures, showWarnings = FALSE, recursive = TRUE)
 
 ###-----------------------------------------------------------------------------
 ### choose the age+ group: 4+ for the WGBEAM or 8+ for the WGBIE
@@ -35,7 +38,7 @@ max_age <- 8
 
 ###-----------------------------------------------------------------------------
 ### Index grouping variable
-index_grouping_var <- c("Year", "Country")
+index_grouping_var <- c("Year")
 
 ###-----------------------------------------------------------------------------
 ### Read data from datras database with icesDatras package
@@ -43,7 +46,7 @@ source("R/load_data/extract_data_from_datras.R")
 
 ###-----------------------------------------------------------------------------
 ### for DAB keep 4 area only
-if (species_name == "Limanda limanda") {
+if (species_name == "Limanda limanda" & survey_code == "BTS") {
 
  source("R/load_data/sf_ices_rectangle.R")
 
@@ -65,12 +68,21 @@ if (species_name == "Limanda limanda") {
 ###-----------------------------------------------------------------------------
 ### Make plots for age structure
 source("R/plot_data/plot_length_number.R")
+source("R/plot_data/plot_length_at_age.R")
 
 ###-----------------------------------------------------------------------------
 ### Compute mean over haul
 index_grouping_var <- c("Year")
-df_alk_prop_long <- compute_alk(df_hh_ca,
+df_alk_prop_long <- compute_alk(df_datras_hh_ca = df_hh_ca,
                                 age_plus_group = max_age,
                                 index_grouping_var = index_grouping_var)
 
 source("R/plot_data/plot_alk_prop.R")
+
+###-----------------------------------------------------------------------------
+### Compute age-index as numbers/km2
+source("R/process_data/compute_age_index.R")
+
+###-----------------------------------------------------------------------------
+### Plot box and bar plots by species for BTS all, BTS East and west , Celtic ad Irish
+source("R/plot_data/plot_Cohort_Box_Bar.R")

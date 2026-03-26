@@ -39,3 +39,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+aged_data_analysis/2023_comparison_age_based_index/R/ICES_AREA/ICES_AREAS.shx
+aged_data_analysis/2023_comparison_age_based_index/R/ICES_AREA/ICES_AREAS.shp
+aged_data_analysis/2023_comparison_age_based_index/R/ICES_AREA/ICES_AREAS.qpj
+aged_data_analysis/2023_comparison_age_based_index/R/ICES_AREA/ICES_AREAS.prj
+aged_data_analysis/2023_comparison_age_based_index/R/ICES_AREA/ICES_AREAS.dbf
+aged_data_analysis/2023_comparison_age_based_index/R/ICES_AREA/ICES_AREAS.cpg
