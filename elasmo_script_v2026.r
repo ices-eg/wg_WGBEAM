@@ -25,9 +25,10 @@ library(viridis)
 # Set your own directory to save outputs
 user_wd<-"C:/Users/a.palermino/OneDrive - CNR/Assegno Scarcella/WGBEAM" # to be changed
 
-#set reference year
+#set reference years
 refY<-2025
-if(!dir.exists(path=paste(user_wd,"/elasmo_output_",refY))) dir.create(path=paste0(user_wd,"/elasmo_output_",refY))
+presentY<-2026
+if(!dir.exists(path=paste(user_wd,"/elasmo_output_",presentY))) dir.create(path=paste0(user_wd,"/elasmo_output_",presentY))
 
 
 ##########################################
@@ -308,7 +309,7 @@ dat2 <- dat2 %>%
 dat <- dat2  
 
 #save dat 
-save(dat, file = paste0(user_wd,"/dati elasmo/elasmo_dat",refY,".rda"))
+save(dat, file = paste0(user_wd,"/dati elasmo/elasmo_dat",presentY,".rda"))
 
 
 ##########################################
@@ -317,7 +318,7 @@ save(dat, file = paste0(user_wd,"/dati elasmo/elasmo_dat",refY,".rda"))
 
 # Option 1: based on beam width and distance
 # check if there are missing records for Distance
-load(paste0(user_wd,"/dati elasmo/elasmo_dat",refY,".rda")) #use to upload save file to avoid reload data in case you close the session
+load(paste0(user_wd,"/dati elasmo/elasmo_dat",presentY,".rda")) #use to upload save file to avoid reload data in case you close the session
 test <- dat %>%  filter(is.na(Distance))
 table(test$Country, test$Year, useNA = "always")
 
@@ -406,14 +407,14 @@ SpecNo <- datspec %>% mutate(HLNoAtLngt=ifelse(HLNoAtLngt==-9 & TotalNo!=-9,Tota
 
 #data to be checked
 data_to_check_2<-datspec%>%filter(HLNoAtLngt<0)
-write.csv(data_to_check,paste0(user_wd,"/elasmo_output_",refY,"/missing_data.csv"))
+write.csv(data_to_check,paste0(user_wd,"/elasmo_output_",presentY,"/missing_data.csv"))
 
 #get unique values for plot
 hist_data<-SpecNo%>%distinct(Country, Year, scientificname,n_km2,.keep_all = TRUE)
 
 ##### Plot total number along the time series by country. Required in the report ####
 hist_data_north_r<-hist_data%>%filter(scientificname %in% rays,!Survey%in%c("BTS-VIII","BTS-GSA17"))
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/rajas_elasmobranch.jpeg"),width = 200, height = 200, units = "mm", res = 400)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/rajas_elasmobranch.jpeg"),width = 200, height = 200, units = "mm", res = 400)
 ggplot(hist_data_north_r)+
   geom_bar(aes(x=Year, y=n_km2, fill=Country),stat = "identity")+ylab(expression("n/km"^2))+
   scale_x_continuous(breaks = seq(min(hist_data_north_r$Year),max(hist_data_north_r$Year),by=5))+scale_fill_viridis_d()+
@@ -421,7 +422,7 @@ ggplot(hist_data_north_r)+
 dev.off()
 
 hist_data_north_s<-hist_data%>%filter(scientificname %in% sharks,!Survey%in%c("BTS-VIII","BTS-GSA17"))
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/sharks_elasmobranch.jpeg"),width = 200, height = 200, units = "mm", res = 400)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/sharks_elasmobranch.jpeg"),width = 200, height = 200, units = "mm", res = 400)
 ggplot(hist_data_north_s)+
   geom_bar(aes(x=Year, y=n_km2, fill=Country),stat = "identity")+ylab(expression("n/km"^2))+
   scale_x_continuous(breaks = seq(min(hist_data_north_s$Year),max(hist_data_north_s$Year),by=5))+scale_fill_viridis_d()+
@@ -430,7 +431,7 @@ dev.off()
 
 ##### Plot total number along the time series BTS-VIII. Required in the report ####
 hist_data_8_r<-hist_data %>% filter(scientificname %in% rays,Survey=="BTS-VIII")
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/rajas_elasmobranch_8ab.jpeg"),width = 200, height = 200, units = "mm", res = 400)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/rajas_elasmobranch_8ab.jpeg"),width = 200, height = 200, units = "mm", res = 400)
 ggplot(hist_data_8_r)+
   geom_bar(aes(x=Year, y=n_km2, fill=Country),stat = "identity")+ylab(expression("n/km"^2))+
   scale_x_continuous(breaks = seq(min(hist_data_8_r$Year),max(hist_data_8_r$Year),by=5))+
@@ -438,7 +439,7 @@ ggplot(hist_data_8_r)+
 dev.off()
 
 hist_data_8_s<-hist_data %>% filter(scientificname %in% sharks,Survey=="BTS-VIII")
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/sharks_elasmobranch_8ab.jpeg"),width = 200, height = 200, units = "mm", res = 400)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/sharks_elasmobranch_8ab.jpeg"),width = 200, height = 200, units = "mm", res = 400)
 ggplot(hist_data_8_s)+
   geom_bar(aes(x=Year, y=n_km2, fill=Country),stat = "identity")+ylab(expression("n/km"^2))+
   scale_x_continuous(breaks = seq(min(hist_data_8_s$Year),max(hist_data_8_s$Year),by=5))+
@@ -447,7 +448,7 @@ dev.off()
 
 ##### Plot total number along the time series BTS-17. Required in the report ####
 hist_data_17_r<-hist_data %>% filter(scientificname %in% rays,Survey=="BTS-GSA17")
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/rajas_elasmobranch_GSA17.jpeg"),width = 200, height = 200, units = "mm", res = 400)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/rajas_elasmobranch_GSA17.jpeg"),width = 200, height = 200, units = "mm", res = 400)
 ggplot(hist_data_17_r)+
   geom_bar(aes(x=Year, y=n_km2, fill=Country),stat = "identity")+ylab(expression("n/km"^2))+
   scale_x_continuous(breaks = seq(min(hist_data_17_r$Year),max(hist_data_17_r$Year),by=5))+
@@ -455,7 +456,7 @@ ggplot(hist_data_17_r)+
 dev.off()
 
 hist_data_17_s<-hist_data %>% filter(scientificname %in% sharks,Survey=="BTS-GSA17")
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/sharks_elasmobranch_GSA17.jpeg"),width = 200, height = 200, units = "mm", res = 400)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/sharks_elasmobranch_GSA17.jpeg"),width = 200, height = 200, units = "mm", res = 400)
 ggplot(hist_data %>% filter(scientificname %in% sharks,Survey=="BTS-GSA17"))+
   geom_bar(aes(x=Year, y=n_km2, fill=Country),stat = "identity")+ylab(expression("n/km"^2))+
   scale_x_continuous(breaks = seq(min(hist_data_17_s$Year),max(hist_data_17_s$Year),by=5))+
@@ -516,20 +517,21 @@ year_map=c((max(dat$Year)-9):max(dat$Year))
 ###################
 #### PLOT only the last ten years  CPUE by haul, remember to change years###
 # Scyliorhinus
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/Scyliorhinus canicula_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/Scyliorhinus canicula_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
   geom_point(data=stations %>% filter(Year %in% year_map ,!Survey%in%c("BTS-VIII","BTS-GSA17")), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
   geom_point(data=byhaul %>% filter(Year %in% year_map , scientificname=="Scyliorhinus canicula",!Survey%in%c("BTS-VIII","BTS-GSA17")),
-             (aes(ShootLong,ShootLat,size=sqrt_fishkm2)), color="#1b9e77",alpha=0.5) +
+             (aes(ShootLong,ShootLat,size=sqrt_fishkm2,color= Country)),alpha=0.5) +
   facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
   coord_quickmap(xlim = c(xmin, xmax), ylim = c(ymin, ymax)) +
   theme(text=element_text(size=22), axis.text = element_text(size = 18)) +  
   theme(legend.title = element_text(face = "bold", size = 16)) + 
   theme(legend.position=c(0.8,0.15),legend.direction = "vertical", axis.title = element_text(size = 16)) + 
   theme(legend.text=element_text(face = "italic",size=14)) + 
-  guides(colour = guide_legend(override.aes = list(size = 8)),size=guide_legend(nrow=2))+
+  scale_color_viridis_d()+
+  guides(colour = guide_legend(nrow=2,override.aes = list(size = 8)),size=guide_legend(nrow=2))+
   labs(x = "Longitude (°)", y = "Latitude (°)", 
        title = expression(italic("Scyliorhinus canicula") ~ "CPUE by haul"),
        size = expression("CPUE"(sqrt("n/km"^2))))
@@ -539,7 +541,7 @@ dev.off()
 #### PLOT only the last ten years  CPUE by haul BTS-VIII, remember to change years###
 ## for BTS-VIII plot only Scyliorinus because no other sherks are caught (2 specimens of mustelus up to 2024)
 # Scyliorhinus
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/Scyliorhinus canicula_by_year_8ab.jpeg"),width = 250, height = 300, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/Scyliorhinus canicula_by_year_8ab.jpeg"),width = 250, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
@@ -562,7 +564,7 @@ dev.off()
 #### PLOT only the last ten years  CPUE by haul BTS-GSA17, remember to change years###
 ## for BTS-GSA17 plot only Scyliorinus because no other sherks are caught (1 specimens of mustelus up to 2024)
 # Scyliorhinus
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/Scyliorhinus canicula_by_year_GSA17.jpeg"),width = 250, height = 300, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/Scyliorhinus canicula_by_year_GSA17.jpeg"),width = 250, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
@@ -583,14 +585,14 @@ ggplot()+
 dev.off()  
 
 # Mustelus
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/Mustelus_map_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/Mustelus_map_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
   geom_point(data=stations %>% filter(Year %in% year_map,!Survey%in%c("BTS-VIII","BTS-GSA17")), aes(ShootLong,ShootLat), shape='.', size=0.05) +   #plot the fished stations
   geom_point(data=byhaul %>% filter(Year %in% year_map, 
                                     scientificname=="Mustelus",!Survey%in%c("BTS-VIII","BTS-GSA17")),
-             (aes(ShootLong,ShootLat,size=sqrt_fishkm2)), color="#d95f02",alpha=0.5) + 
+             (aes(ShootLong,ShootLat,size=sqrt_fishkm2, color= Country)),alpha=0.5) + 
   facet_wrap(~Year,dir='h', nrow = 3, ncol = 4)+
   coord_quickmap(xlim = c(xmin, xmax), ylim = c(ymin, ymax)) +
   theme(text=element_text(size=22), axis.text = element_text(size = 18))+
@@ -604,7 +606,7 @@ ggplot()+
 dev.off()  
 
 # Other sharks
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/Other_sharks_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/Other_sharks_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") + #plot the land
@@ -623,7 +625,7 @@ ggplot()+
 dev.off()  	
 
 #### Rays ### 
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/rajas_map_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/rajas_map_by_year.jpeg"),width = 300, height = 250, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
@@ -647,7 +649,7 @@ ggplot()+
 dev.off()  
 
 #### Rays BTS-VIII ### 
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/rajas_map_by_year_8ab.jpeg"),width = 250, height = 300, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/rajas_map_by_year_8ab.jpeg"),width = 250, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
@@ -669,7 +671,7 @@ ggplot()+
 dev.off()  
 
 #### Rays BTS-GSA17 ### 
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/rajas_map_by_year_17.jpeg"),width = 250, height = 300, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/rajas_map_by_year_17.jpeg"),width = 250, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
@@ -711,7 +713,7 @@ byhaultot <- SpecNotot%>%
   mutate(sqrt_fishkm2 = sqrt(fishkm2))
 
 #### Rays, PLOT not required for SHARK in the report #### 
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/raja_map_TOT.jpeg"),width = 300, height = 300, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/raja_map_TOT.jpeg"),width = 300, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
@@ -733,7 +735,7 @@ ggplot()+
 dev.off()
 
 ##### Sharks, PLOT not required for RAYS in the report #####
-jpeg(file=paste0(user_wd,"/elasmo_output_",refY,"/sharks_map_TOT_by_species.jpeg"),width = 400, height = 300, units = "mm", res = 300)
+jpeg(file=paste0(user_wd,"/elasmo_output_",presentY,"/sharks_map_TOT_by_species.jpeg"),width = 400, height = 300, units = "mm", res = 300)
 ggplot()+
   theme_light()+
   geom_polygon(data=m,aes(long,lat,group=group),fill=NA,color="grey") +  #plot the land
