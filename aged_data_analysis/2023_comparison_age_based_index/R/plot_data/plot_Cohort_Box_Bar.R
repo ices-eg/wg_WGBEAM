@@ -74,7 +74,7 @@ dat_7d <- spatial_df_hh_ca_3_NORTHSEA  %>%  filter(Area_27 %in% c("7.d")) %>% mu
 #bind
 dat_ew <- rbind(dat_w,dat_e)
 # use the check key for everything not inside 51, 57
-dat_out <- spatial_df_hh_ca_3_NORTHSEA %>% filter(!checkKey %in% dat_ew$checkKey) %>% mutate(EastWest="BTS NorthS Sea outside 51N-57N")
+dat_out <- spatial_df_hh_ca_3_NORTHSEA %>% filter(!checkKey %in% c(dat_ew$checkKey,dat_7d$checkKey)) %>% mutate(EastWest="BTS NorthS Sea outside 51N-57N")
 
 
 ###### bind back together  and remvoe check key 
@@ -84,8 +84,11 @@ spatial_df_hh_ca_3_NORTHSEA_2 <- rbind(spatial_df_hh_ca_3_NORTHSEA_2,dat_7d) %>%
 
 #### stick parts back together chck dims
 spatial_df_hh_ca_4 <- rbind(spatial_df_hh_ca_3_NORTHSEA_2,spatial_df_hh_ca_3_CEL_IRISH)
-dim(spatial_df_hh_ca_3)[1]-dim(spatial_df_hh_ca_4)[1]
 
+####################################################
+##############THIS CHECK IS REALLY IMPORTANT!#######
+dim(spatial_df_hh_ca_3)[1]-dim(spatial_df_hh_ca_4)[1]
+#####################################################
 
 ###### important uncount the ca table so each row = 1 fish this allows the geomhistorgram to function as inteded
 spatial_df_hh_ca_5 <- spatial_df_hh_ca_4 %>% uncount(weights = CANoAtLngt)
