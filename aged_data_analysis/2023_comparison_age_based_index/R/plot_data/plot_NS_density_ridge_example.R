@@ -160,10 +160,45 @@ for(i in unique(spatial_df_hh_ca_5$ScientificName)){
   ggsave(paste("figures/Den_PLOT/Den_Plot_NS_Cou",i,".png",sep=""),width = 12, height = 12, dpi = 300)
   
   
-
-  
 }
 
 
-
+for(i in unique(spatial_df_hh_ca_5$ScientificName)){
+  
+  ##### with NAs
+  Species_dat <- spatial_df_hh_ca_5 %>% filter(ScientificName == i)
+  
+  
+  plot_dat <- Species_dat %>%  filter(SurveySeries %in% c("BTS North Sea"))
+  plot_dat$Age <- as.factor(plot_dat$Age)
+    
+  ggplot(plot_dat,aes(x=LngtClass,y=Age,group = Age,fill = as.factor(Age),alpha=0.3))+
+    geom_density_ridges()+
+    scale_alpha(guide = "none")+
+    labs(fill="Age" ,x = "Length Class (cm)", y= "Age")+
+    ggtitle(paste("Density ridge plot of age for ",i,sep=""))+
+    scale_x_continuous(breaks = seq(0, max(plot_dat$LngtClass, na.rm = T)+1, by = 2)
+    )+
+    facet_wrap(~Year)+
+    theme_grey()
+  
+  ggsave(paste("figures/Den_Age_PLOT/Den_Plot_NS_Age",i,".png",sep=""),width = 12, height = 12, dpi = 300)
+  
+  plot_dat$Country <- as.factor(plot_dat$Country)
+  
+  # ggplot(plot_dat,
+  #        aes(x = LngtClass,
+  #            y = factor(Age),
+  #            group = interaction(Age, Country)
+  #            )) +
+  #   geom_density_ridges(aes(fill = Country),alpha = 0.35, scale = 1) +
+  #   labs(fill = "Country", x = "Length Class (cm)", y = "Age") +
+  #   ggtitle(paste0("Density ridge plot by country and age for ", i)) +
+  #   scale_x_continuous(breaks = seq(0, max(plot_dat$LngtClass, na.rm = TRUE) + 1, by = 2)) +
+  #   facet_wrap(~Year) +
+  #   theme_grey()
+  
+  
+  
+}
 
