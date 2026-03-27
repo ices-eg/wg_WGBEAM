@@ -74,7 +74,7 @@ dat_7d <- spatial_df_hh_ca_3_NORTHSEA  %>%  filter(Area_27 %in% c("7.d")) %>% mu
 #bind
 dat_ew <- rbind(dat_w,dat_e)
 # use the check key for everything not inside 51, 57
-dat_out <- spatial_df_hh_ca_3_NORTHSEA %>% filter(!checkKey %in% dat_ew$checkKey) %>% mutate(EastWest="BTS NorthS Sea outside 51N-57N")
+dat_out <- spatial_df_hh_ca_3_NORTHSEA %>% filter(!checkKey %in% c(dat_ew$checkKey,dat_7d$checkKey)) %>% mutate(EastWest="BTS NorthS Sea outside 51N-57N and 7D")
 
 
 ###### bind back together  and remvoe check key 
@@ -84,8 +84,11 @@ spatial_df_hh_ca_3_NORTHSEA_2 <- rbind(spatial_df_hh_ca_3_NORTHSEA_2,dat_7d) %>%
 
 #### stick parts back together chck dims
 spatial_df_hh_ca_4 <- rbind(spatial_df_hh_ca_3_NORTHSEA_2,spatial_df_hh_ca_3_CEL_IRISH)
-dim(spatial_df_hh_ca_3)[1]-dim(spatial_df_hh_ca_4)[1]
 
+####################################################
+##############THIS CHECK IS REALLY IMPORTANT!#######
+dim(spatial_df_hh_ca_3)[1]-dim(spatial_df_hh_ca_4)[1]
+#####################################################
 
 ###### important uncount the ca table so each row = 1 fish this allows the geomhistorgram to function as inteded
 spatial_df_hh_ca_5 <- spatial_df_hh_ca_4 %>% uncount(weights = CANoAtLngt)
@@ -95,6 +98,8 @@ sum(spatial_df_hh_ca_4$CANoAtLngt)-dim(spatial_df_hh_ca_5)[1] # if not zero prob
 plot_dat <- spatial_df_hh_ca_5 %>% filter(ScientificName =="Pleuronectes platessa")
 
 library(ggFishPlots)
+
+#################
 
 for(i in unique(spatial_df_hh_ca_5$ScientificName)){
 
@@ -167,6 +172,97 @@ paste("figures/LW_PLOT/LW_plot_cou_",i,".png",sep=""),width = 12, height = 12, d
 )
 
 }
+
+################# split plot by sex
+for(i in unique(spatial_df_hh_ca_5$ScientificName)){
+  #Need to remove NA and possibly U values
+  plot_dat <- spatial_df_hh_ca_5 %>% filter(ScientificName ==i) %>% mutate(sex=as.character(Sex)) %>% mutate(sex=ifelse(sex=="U",NA,sex))
+  
+  plot_names <- c()
+  
+  if("NL" %in% plot_dat$Country){
+    pout_NL <- plot_lw(filter(plot_dat, Country %in% c("NL")),length ="LngtClass",weight ="IndWgt",
+                       # ylab = "Weight (g)",
+                       # xlab = "Length Class (cm)",
+                       length.unit = "cm",
+                       weight.unit = "g",
+                       annotate.coefficients = T,
+                       sex = "sex",
+                       split.by.sex = TRUE
+                        
+                       
+                                  
+                       
+    )
+    ##add tittle and ge tonly plot 
+    p1 <- pout_NL$plot+ggtitle(paste("Length weight plot of ",i, " for NL",sep=""))+theme_gray()
+    plot_names <- c(plot_names,"p1")
+  }
+  
+  if("BE" %in% plot_dat$Country){
+    pout_BE <- plot_lw(filter(plot_dat, Country %in% c("BE")),length ="LngtClass",weight ="IndWgt",
+                       # ylab = "Weight (g)",
+                       # xlab = "Length Class (cm)",
+                       length.unit = "cm",
+                       weight.unit = "g",
+                       annotate.coefficients = T,
+                       sex = "sex",
+                       split.by.sex = TRUE
+                       
+    )
+    ##add tittle and ge tonly plot 
+    p2 <-pout_BE$plot+ggtitle(paste("Length weight plot of ",i, " for BE",sep=""))+theme_gray()
+    plot_names <- c(plot_names,"p2")
+  }
+  
+  if("GB" %in% plot_dat$Country){
+    pout_GB <- plot_lw(filter(plot_dat, Country %in% c("GB")),length ="LngtClass",weight ="IndWgt",
+                       # ylab = "Weight (g)",
+                       # xlab = "Length Class (cm)",
+                       length.unit = "cm",
+                       weight.unit = "g",
+                       annotate.coefficients = T,
+                       sex = "sex",
+                       split.by.sex = TRUE
+                       
+    )
+    ##add tittle and ge tonly plot 
+    p3 <-pout_GB$plot+ggtitle(paste("Length weight plot of ",i, " for GB",sep=""))+theme_gray()
+    plot_names <- c(plot_names,"p3")
+  }
+  if("DE" %in% plot_dat$Country){
+    pout_DE <- plot_lw(filter(plot_dat, Country %in% c("DE")),length ="LngtClass",weight ="IndWgt",
+                       # ylab = "Weight (g)",
+                       # xlab = "Length Class (cm)",
+                       length.unit = "cm",
+                       weight.unit = "g",
+                       annotate.coefficients = T,
+                       sex = "sex",
+                       split.by.sex = TRUE
+                       
+    )
+    ##add tittle and ge tonly plot 
+    p4 <-pout_DE$plot+ggtitle(paste("Length weight plot of ",i, " for DE",sep=""))+theme_gray()
+    plot_names <- c(plot_names,"p4")
+  }
+  
+  
+  grobs <- mget(
+    plot_names[plot_names %in% ls(envir = .GlobalEnv)],
+    envir = .GlobalEnv
+  )
+  
+  
+  
+  ggsave(plot = 
+           grid.arrange(nrows=4,ncol=1,grobs = grobs),
+         paste("figures/LW_PLOT/LW_plot_cou_sex",i,".png",sep=""),width = 12, height = 12, dpi = 300
+  )
+  
+}
+
+
+
 
 ######## ggplot version
 for(i in unique(spatial_df_hh_ca_5$ScientificName)){
